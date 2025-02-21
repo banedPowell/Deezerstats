@@ -1,0 +1,7 @@
+{
+  "useTabs": true,
+  "vueIndentScriptAndStyle": true,
+  "singleQuote": true,
+  "enableDebugLogs": true,
+  "tabWidth": 4
+}
