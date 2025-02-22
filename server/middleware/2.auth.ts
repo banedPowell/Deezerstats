@@ -21,7 +21,8 @@ export default defineEventHandler(async (event) => {
 		}
 
 		const decoded = useVerifyJwt(token);
-		event.context.auth = decoded.userId;
+		console.log('decoded', decoded);
+		// event.context.auth = decoded.id;
 	} catch (error) {
 		console.error('error', error);
 
