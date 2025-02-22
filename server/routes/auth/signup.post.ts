@@ -5,7 +5,8 @@ export default defineEventHandler(async (event) => {
 		const { username, password }: UserPayload = await readBody(event);
 
 		if (!username || !password) {
-			throw new Error('Username and password are required');
+			setResponseStatus(event, 400, 'Username and password are required');
+			return { error: 'Username and password are required' };
 		}
 
 		const id = useRandomId(100);
