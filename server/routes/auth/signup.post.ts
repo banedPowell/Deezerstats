@@ -1,29 +1,39 @@
-import { tables, useDrizzle } from '#imports';
+import type { UserPayload } from '~/stores/authStore';
 
 export default defineEventHandler(async (event) => {
 	try {
-		const { username, password } = await readBody(event);
+		const { username, password }: UserPayload = await readBody(event);
+
+		if (!username || !password) {
+			throw new Error('Username and password are required');
+		}
+
+		const id = useRandomId(100);
 		const hash = await useHashPassword(password);
 
-		const user = await useDrizzle().insert(tables.users).values({
+		const newUserObject: User = {
+			id,
 			name: username,
 			username,
 			password: hash,
 			createdAt: new Date(),
 			updatedAt: new Date(),
-		});
+		};
 
-		console.log(user);
-
-		const token = useGenerateJwt(user);
-		setResponseStatus(event, 201, 'User created');
+		await useDrizzle()
+			.insert(tables.users)
+			.values({
+				...newUserObject,
+			});
 
 		return {
-			name,
-			username,
-			token,
+			userId: newUserObject.id,
+			name: newUserObject.name,
+			username: newUserObject.username,
+			token: await useGenerateJwt(newUserObject),
 		};
 	} catch (e) {
+		console.error(e); // Ajoutez cette ligne pour loguer l'erreur
 		setResponseStatus(event, 500, 'Internal server error');
 		return { error: (e as Error).message };
 	}
