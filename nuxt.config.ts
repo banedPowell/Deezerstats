@@ -7,7 +7,7 @@ export default defineNuxtConfig({
 		jwtSecret: process.env.JWT_SECRET,
 	},
 
-	modules: ['@nuxthub/core', '@pinia/nuxt', 'nuxt-security'],
+	modules: ['@nuxthub/core', '@pinia/nuxt'],
 
 	hub: {
 		database: true,
