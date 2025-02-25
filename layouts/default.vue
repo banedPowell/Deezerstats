@@ -1,10 +1,13 @@
-<script lang="ts" setup></script>
+<script lang="ts" setup>
+	const { logout } = useAuthStore();
+</script>
 
 <template>
 	<header>
 		<NuxtLink to="/">Home</NuxtLink>
 		<NuxtLink to="/signup">signup</NuxtLink>
 		<NuxtLink to="/login">login</NuxtLink>
+		<button @click="logout">Logout</button>
 	</header>
 
 	<main>

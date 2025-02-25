@@ -28,7 +28,6 @@ export default defineEventHandler(async (event) => {
 			});
 
 		return {
-			userId: newUserObject.id,
 			name: newUserObject.name,
 			username: newUserObject.username,
 			token: await useGenerateJwt(newUserObject),

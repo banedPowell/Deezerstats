@@ -3,15 +3,52 @@ export type UserPayload = {
 	password: string;
 };
 
-const useAuthStore = defineStore('auth', () => {
-	const userId: Ref<string | null> = ref(null);
-	const name: Ref<string | null> = ref(null);
-	const uName: Ref<string | null> = ref(null);
-	const token: Ref<string | null> = ref(null);
+export type UserInAuthStore = {
+	name: string | null;
+	username: string | null;
+	token: string | null;
+};
 
+const useAuthStore = defineStore('auth', () => {
 	const loading = ref(false);
 
-	const isAuthenticated = computed(() => !!token.value);
+	const userCookie = useCookie<UserInAuthStore>('user', {
+		default: () => ({
+			name: null,
+			username: null,
+			token: null,
+		}),
+	});
+
+	const user = ref<UserInAuthStore>(userCookie.value);
+
+	const isAuthenticated = computed(() => !!user.value.token);
+
+	const saveUserToStore = (data: Ref<UserInAuthStore>) => {
+		user.value = {
+			name: data.value.name,
+			username: data.value.username,
+			token: data.value.token,
+		};
+	};
+
+	const saveUserToCookie = () => {
+		userCookie.value = {
+			name: user.value.name,
+			username: user.value.username,
+			token: user.value.token,
+		};
+	};
+
+	const resetUser = () => {
+		user.value = {
+			name: null,
+			username: null,
+			token: null,
+		};
+
+		saveUserToCookie();
+	};
 
 	const signup = async ({ username, password }: UserPayload) => {
 		loading.value = true;
@@ -28,10 +65,8 @@ const useAuthStore = defineStore('auth', () => {
 		});
 
 		if (data.value) {
-			userId.value = data.value.userId;
-			name.value = data.value.name;
-			uName.value = data.value.username;
-			token.value = data.value.token;
+			saveUserToStore(data);
+			saveUserToCookie();
 			loading.value = false;
 		}
 	};
@@ -51,25 +86,22 @@ const useAuthStore = defineStore('auth', () => {
 		});
 
 		if (data.value) {
-			userId.value = data.value.userId;
-			name.value = data.value.name;
-			uName.value = data.value.username;
-			token.value = data.value.token;
+			saveUserToStore(data);
+			saveUserToCookie();
 			loading.value = false;
 		}
 	};
+
 	const logout = () => {
-		token.value = null;
-		userId.value = null;
-		uName.value = null;
+		loading.value = true;
+		resetUser();
+		loading.value = false;
 	};
 
 	return {
-		userId,
-		name,
-		uName,
-		token,
+		user,
 		isAuthenticated,
+		loading,
 		signup,
 		login,
 		logout,
