@@ -19,10 +19,11 @@ export default defineEventHandler(async (event) => {
 				}),
 			);
 		}
+		console.log('token', token);
 
-		const decoded = useVerifyJwt(token);
+		const decoded = await useVerifyJwt(token);
 		console.log('decoded', decoded);
-		// event.context.auth = decoded.id;
+		event.context.auth = decoded.id;
 	} catch (error) {
 		console.error('error', error);
 
