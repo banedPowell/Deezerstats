@@ -7,7 +7,50 @@ export default defineNuxtConfig({
 		jwtSecret: process.env.JWT_SECRET,
 	},
 
-	modules: ['@nuxthub/core', '@pinia/nuxt'],
+	modules: [
+		'@nuxthub/core',
+		'@pinia/nuxt',
+		'@nuxt/image',
+		'@nuxt/icon',
+		'@nuxt/fonts',
+	],
+
+	fonts: {
+		defaults: {
+			weights: [300, 400],
+			styles: ['normal', 'italic'],
+		},
+		families: [
+			{
+				name: 'League Gothic',
+				provider: 'google',
+			},
+
+			{
+				name: 'Inter',
+				provider: 'google',
+			},
+		],
+	},
+
+	vite: {
+		css: {
+			preprocessorOptions: {
+				scss: {
+					additionalData: '@use "~/assets/styles/_colors.scss" as *;',
+					api: 'modern-compiler',
+				},
+			},
+		},
+	},
+
+	css: ['@/assets/styles/index.scss'],
+
+	nitro: {
+		experimental: {
+			openAPI: true,
+		},
+	},
 
 	hub: {
 		database: true,

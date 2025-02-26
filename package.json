@@ -11,6 +11,9 @@
     "db:generate": "drizzle-kit generate"
   },
   "dependencies": {
+    "@nuxt/fonts": "0.10.3",
+    "@nuxt/icon": "1.10.3",
+    "@nuxt/image": "1.9.0",
     "@nuxthub/core": "0.8.17",
     "@pinia/nuxt": "0.10.1",
     "bcryptjs": "^3.0.2",

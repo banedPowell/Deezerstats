@@ -3,10 +3,12 @@
 </script>
 
 <template>
-	<div>
-		<NuxtRouteAnnouncer />
-		<NuxtLayout>
-			<NuxtPage />
-		</NuxtLayout>
-	</div>
+	<Html lang="fr">
+		<Body>
+			<NuxtRouteAnnouncer />
+			<NuxtLayout>
+				<NuxtPage />
+			</NuxtLayout>
+		</Body>
+	</Html>
 </template>
