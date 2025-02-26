@@ -37,7 +37,6 @@ export default defineEventHandler(async (event) => {
 			token: await useGenerateJwt(userObject),
 		};
 	} catch (e) {
-		console.error(e); // Ajoutez cette ligne pour loguer l'erreur
 		setResponseStatus(event, 500, 'Internal server error');
 		return { error: (e as Error).message };
 	}
