@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 	definePageMeta({
 		layout: 'auth-layout',
-		middleware: 'auth-route-middleware',
 	});
 
 	useHead({
@@ -10,32 +9,34 @@
 
 	const router = useRouter();
 
+	const supabase = useSupabaseClient();
+	const errorMessage = ref('');
+
 	const user = ref({
-		username: '',
+		mail: '',
 		password: '',
 	});
 
-	const errorMessage = ref('');
-
 	const resetUser = () => {
-		user.value.username = '';
+		user.value.mail = '';
 		user.value.password = '';
 	};
 
-	const { login } = useAuthStore();
-	const authStore = storeToRefs(useAuthStore());
-
 	const logToAccount = async () => {
-		try {
-			await login(user.value);
+		const { data, error } = await supabase.auth.signInWithPassword({
+			email: user.value.mail,
+			password: user.value.password,
+		});
 
+		if (error) {
+			errorMessage.value = error.message;
+			return;
+		}
+
+		if (data.session) {
+			errorMessage.value = '';
 			resetUser();
-
-			if (authStore.isAuthenticated) {
-				await router.push('/dashboard');
-			}
-		} catch (error) {
-			errorMessage.value = (error as Error).message;
+			await router.push('/auth');
 		}
 	};
 </script>
@@ -46,9 +47,9 @@
 
 		<form @submit.prevent="logToAccount">
 			<label>
-				Nom d'utilisateur
+				Adresse mail
 
-				<input v-model="user.username" type="text" />
+				<input v-model="user.mail" type="email" />
 			</label>
 
 			<label>
@@ -59,7 +60,9 @@
 
 			<p class="">
 				Pas encore de compte ?
-				<NuxtLink class="accent" to="/signup">Inscription</NuxtLink>
+				<NuxtLink class="accent" to="/auth/signup"
+					>Inscription
+				</NuxtLink>
 			</p>
 
 			<button style="display: none" type="submit"></button>

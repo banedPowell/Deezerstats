@@ -1,6 +1,9 @@
 <script lang="ts" setup>
-	const store = useAuthStore();
-	const { isAuthenticated } = storeToRefs(store);
+	const user = useSupabaseUser();
+
+	const isAuthenticated = computed(() => {
+		return !!user.value;
+	});
 </script>
 
 <template>

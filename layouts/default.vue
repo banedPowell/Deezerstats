@@ -1,8 +1,9 @@
 <script lang="ts" setup>
-	import DHeader from '~/components/DHeader.vue';
+	const user = useSupabaseUser();
 
-	const store = useAuthStore();
-	const { isAuthenticated } = storeToRefs(store);
+	const isAuthenticated = computed(() => {
+		return !!user.value;
+	});
 </script>
 
 <template>

@@ -1,16 +1,10 @@
 <script lang="ts" setup>
-	definePageMeta({
-		middleware: 'auth-route-middleware',
-	});
-
-	const authStore = useAuthStore();
-
 	const isEmpty = ref(true);
 </script>
 
 <template>
 	<section v-if="isEmpty" class="dashboard empty-dashboard">
-		<h1 class="title">Bienvenue {{ authStore.user.name }}</h1>
+		<!-- <h1 class="title">Bienvenue {{ authStore.user.name }}</h1> -->
 
 		<h2 class="top-title">Vous n'avez pas encore de top</h2>
 

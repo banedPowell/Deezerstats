@@ -5,12 +5,11 @@
 	}>();
 
 	const router = useRouter();
-
-	const { logout } = useAuthStore();
+	const supabase = useSupabaseClient();
 
 	const logoutUser = () => {
-		logout();
-		router.push('/login');
+		supabase.auth.signOut();
+		router.push('/auth/login');
 	};
 </script>
 
@@ -24,17 +23,19 @@
 
 		<div v-if="!clear" class="header__right">
 			<div v-if="!isAuthenticated" class="unauthenticated">
-				<NuxtLink to="/login">
+				<NuxtLink to="/auth/login">
 					<DButton size="small" type="secondary">Connexion</DButton>
 				</NuxtLink>
 
-				<NuxtLink to="/signup">
+				<NuxtLink to="/auth/signup">
 					<DButton size="small" type="primary">Inscription</DButton>
 				</NuxtLink>
 			</div>
 
 			<div v-if="isAuthenticated" class="authenticated">
-				<NuxtLink to="/dashboard">Dashboard</NuxtLink>
+				<NuxtLink class="dashboard-link" to="/dashboard"
+					>Dashboard
+				</NuxtLink>
 
 				<DButton size="small" type="secondary" @click="logoutUser">
 					Logout
@@ -79,15 +80,15 @@
 			flex-direction: row;
 			align-items: center;
 			gap: 20px;
+		}
+	}
 
-			a {
-				font-size: 1.2rem;
+	.dashboard-link {
+		font-size: 1.2rem;
 
-				&:hover {
-					text-underline-offset: 0.4rem;
-					text-decoration: $text underline dashed;
-				}
-			}
+		&:hover {
+			text-underline-offset: 0.4rem;
+			text-decoration: $text underline dashed;
 		}
 	}
 </style>

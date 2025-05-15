@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-	useAuthStore();
-
 	useHead({
 		title: 'Deezerstats',
 		link: [

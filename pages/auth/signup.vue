@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 	definePageMeta({
 		layout: 'auth-layout',
-		middleware: 'auth-route-middleware',
 	});
 
 	useHead({
@@ -9,33 +8,35 @@
 	});
 
 	const router = useRouter();
+	const supabase = useSupabaseClient();
 
 	const user = ref({
-		username: '',
+		mail: '',
 		password: '',
 	});
 
-	const errorMessage = ref('');
-
 	const resetUser = () => {
-		user.value.username = '';
+		user.value.mail = '';
 		user.value.password = '';
 	};
 
-	const { signup } = useAuthStore();
-	const authStore = storeToRefs(useAuthStore());
+	const errorMessage = ref('');
 
 	const createAccount = async () => {
-		try {
-			await signup(user.value);
+		const { data, error } = await supabase.auth.signUp({
+			email: user.value.mail,
+			password: user.value.password,
+		});
 
+		if (error) {
+			errorMessage.value = error.message;
+			return;
+		}
+
+		if (data.user) {
+			errorMessage.value = '';
 			resetUser();
-
-			if (authStore.isAuthenticated) {
-				await router.push('/dashboard');
-			}
-		} catch (error) {
-			errorMessage.value = (error as Error).message;
+			await router.push('/auth');
 		}
 	};
 </script>
@@ -46,9 +47,8 @@
 
 		<form @submit.prevent="createAccount">
 			<label>
-				Nom d'utilisateur
-
-				<input v-model="user.username" type="text" />
+				Adresse mail
+				<input v-model="user.mail" type="email" />
 			</label>
 
 			<label>
@@ -59,7 +59,7 @@
 
 			<p class="">
 				Déjà un compte ?
-				<NuxtLink class="accent" to="/login">Connexion</NuxtLink>
+				<NuxtLink class="accent" to="/auth/login">Connexion</NuxtLink>
 			</p>
 
 			<button style="display: none" type="submit"></button>
