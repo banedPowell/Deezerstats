@@ -4,7 +4,6 @@ export default defineNuxtConfig({
 	devtools: { enabled: true },
 
 	runtimeConfig: {
-		jwtSecret: process.env.JWT_SECRET,
 		supabaseUrl: process.env.SUPABASE_URL,
 		supabaseKey: process.env.SUPABASE_KEY,
 	},
