@@ -18,6 +18,8 @@
 </template>
 
 <style lang="scss" scoped>
+	@use 'sass:color';
+
 	.button {
 		display: flex;
 		justify-content: center;
@@ -32,6 +34,12 @@
 		color: $text;
 		cursor: pointer;
 		user-select: none;
+
+		transition: background-color 0.1s ease;
+
+		&:hover {
+			transition: background 0.1s ease-in-out;
+		}
 
 		&__text {
 			font-family: 'Inter', sans-serif;
@@ -52,11 +60,19 @@
 		&--primary {
 			background-color: $primary;
 			border: none;
+
+			&:hover {
+				background-color: color.scale($primary, $lightness: 4%);
+			}
 		}
 
 		&--secondary {
 			background-color: $bg;
 			border: 1px solid $strokes;
+
+			&:hover {
+				background-color: color.scale($bg, $lightness: 4%);
+			}
 		}
 
 		&--disabled {

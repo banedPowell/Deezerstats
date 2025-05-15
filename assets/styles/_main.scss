@@ -1,15 +1,97 @@
 @use './colors' as c;
+@use './screen' as screen;
+@use 'sass:color';
 
 html,
 body {
 	background: c.$bg;
 
+	font-family: 'Inter', sans-serif;
 	font-size: 62.5%;
+	color: c.$text;
+
+	min-width: 100%;
 }
 
-h1.logo {
-	font-family: 'League Gothic', serif;
-	font-size: 2rem;
-	font-weight: normal;
+#__nuxt {
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+	font-family: 'League Gothic', sans-serif;
+	font-weight: 400;
+}
+
+h1.title {
+	font-size: 8rem;
+}
+
+h2.title {
+	font-size: 4rem;
+}
+
+@media screen and (max-width: screen.$tablet) {
+	h1.title {
+		font-size: 4rem;
+	}
+
+	h2.title {
+		font-size: 2rem;
+	}
+}
+
+p {
+	font-family: 'Inter', sans-serif;
+	font-size: 1.6rem;
+}
+
+p.error {
+	color: c.$error;
+	font-size: 1.2rem;
+}
+
+a.accent {
+	color: c.$accent;
+}
+
+label {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 10px;
+
+	font-size: 1.4rem;
+	color: c.$details;
+
+	width: 100%;
+}
+
+input {
+	width: 100%;
+	padding: 13px 20px;
+	border-radius: 5px;
+
+	background-color: c.$bg-3;
+
+	font-size: 1.6rem;
 	color: c.$text;
+
+	transition: background-color 0.15s ease;
+
+	&:hover {
+		transition: background 0.15s ease-in-out;
+		background-color: color.scale(c.$bg-3, $lightness: 6%);
+	}
+
+	&:focus {
+		border: 1px solid c.$primary;
+	}
 }
