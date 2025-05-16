@@ -30,7 +30,7 @@ export interface FileDatas {
 interface Album {
 	id: number;
 	title: string;
-	artistId: number;
+	artist_id: number;
 }
 
 export function transformRawDataToFileData(rawData: RawFileDatas): FileDatas {
@@ -277,7 +277,7 @@ export async function batchInsertAlbums(
 		const { data: existingAlbums, error: selectError } =
 			await supabaseClient
 				.from('albums')
-				.select('id, title, artistId')
+				.select('id, title, artist_id')
 				.in(
 					'title',
 					chunk.map((album) => album.albumTitle),
@@ -294,7 +294,7 @@ export async function batchInsertAlbums(
 		// Créer un map des artistes existants pour ce chunk
 		const existingAlbumsMap = new Map(
 			existingAlbums?.map((album) => [
-				`${album.title}-${album.artistId}`,
+				`${album.title}-${album.artist_id}`,
 				album,
 			]) || [],
 		);
@@ -307,10 +307,10 @@ export async function batchInsertAlbums(
 
 		// Ajouter les albums existants au map de résultat
 		for (const album of existingAlbums) {
-			albumsReturned.set(`${album.title}-${album.artistId}`, {
+			albumsReturned.set(`${album.title}-${album.artist_id}`, {
 				id: album.id,
 				title: album.title,
-				artistId: album.artistId,
+				artist_id: album.artist_id,
 			});
 		}
 
@@ -326,10 +326,10 @@ export async function batchInsertAlbums(
 				.insert(
 					newAlbums.map((album) => ({
 						title: album.albumTitle,
-						artistId: album.artistId,
+						artist_id: album.artistId,
 					})),
 				)
-				.select('id, title, artistId');
+				.select('id, title, artist_id');
 
 		if (insertError) {
 			console.error(
@@ -341,10 +341,10 @@ export async function batchInsertAlbums(
 
 		// Ajouter les nouveaux albums au map de résultat
 		insertedAlbums?.forEach((album) => {
-			albumsReturned.set(`${album.title}-${album.artistId}`, {
+			albumsReturned.set(`${album.title}-${album.artist_id}`, {
 				id: album.id,
 				title: album.title,
-				artistId: album.artistId,
+				artist_id: album.artist_id,
 			});
 		});
 	}
@@ -355,8 +355,8 @@ export async function batchInsertAlbums(
 export interface Song {
 	id: number;
 	title: string;
-	artistId: number;
-	albumId: number;
+	artist_id: number;
+	album_id: number;
 	isrc: string;
 }
 
@@ -392,7 +392,7 @@ export async function batchInsertSongs(
 
 		const { data: existingSongs, error: selectError } = await supabaseClient
 			.from('songs')
-			.select('id, title, artistId, albumId, isrc')
+			.select('id, title, artist_id, album_id, isrc')
 			.in('isrc', isrcs);
 
 		const existingISRCs = new Set(existingSongs?.map((s) => s.isrc) ?? []);
@@ -418,8 +418,13 @@ export async function batchInsertSongs(
 		// Insérer les nouveaux morceaux
 		const { data: insertedSongs, error: insertError } = await supabaseClient
 			.from('songs')
-			.insert(newSongs)
-			.select('id, title, artistId, albumId, isrc');
+			.insert(newSongs.map(song => ({
+				title: song.title,
+				artist_id: song.artistId,
+				album_id: song.albumId,
+				isrc: song.isrc
+			})))
+			.select('id, title, artist_id, album_id, isrc');
 
 		if (insertError) {
 			console.error(
@@ -469,10 +474,10 @@ export async function batchInsertPlays(
 	);
 
 	const playsToInsert: {
-		userId: string;
-		songId: number;
-		listeningTime: number;
-		listeningDate: string;
+		user_id: string;
+		song_id: number;
+		listening_time: number;
+		listening_date: string;
 		hash: string;
 	}[] = [];
 
@@ -522,10 +527,10 @@ export async function batchInsertPlays(
 		);
 
 		playsToInsert.push({
-			userId,
-			songId: song.id,
-			listeningTime: record.listeningTime,
-			listeningDate: record.date.toISOString(),
+			user_id: userId,
+			song_id: song.id,
+			listening_time: record.listeningTime,
+			listening_date: record.date.toISOString(),
 			hash,
 		});
 	}

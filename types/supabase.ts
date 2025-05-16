@@ -61,30 +61,30 @@ export type Database = {
 		Tables: {
 			albums: {
 				Row: {
-					artistId: number;
+					artist_id: number;
 					created_at: string;
 					id: number;
-					releaseDate: string | null;
+					release_date: string | null;
 					title: string;
 				};
 				Insert: {
-					artistId: number;
+					artist_id: number;
 					created_at?: string;
 					id?: number;
-					releaseDate?: string | null;
+					release_date?: string | null;
 					title: string;
 				};
 				Update: {
-					artistId?: number;
+					artist_id?: number;
 					created_at?: string;
 					id?: number;
-					releaseDate?: string | null;
+					release_date?: string | null;
 					title?: string;
 				};
 				Relationships: [
 					{
 						foreignKeyName: 'albums_artistId_fkey';
-						columns: ['artistId'];
+						columns: ['artist_id'];
 						referencedRelation: 'artists';
 						referencedColumns: ['id'];
 					},
@@ -108,44 +108,7 @@ export type Database = {
 				};
 				Relationships: [];
 			};
-			plays: {
-				Row: {
-					created_at: string;
-					hash: string;
-					id: number;
-					listeningDate: string;
-					listeningTime: number;
-					songId: number;
-					userId: string;
-				};
-				Insert: {
-					created_at?: string;
-					hash: string;
-					id?: number;
-					listeningDate: string;
-					listeningTime: number;
-					songId: number;
-					userId: string;
-				};
-				Update: {
-					created_at?: string;
-					hash?: string;
-					id?: number;
-					listeningDate?: string;
-					listeningTime?: number;
-					songId?: number;
-					userId?: string;
-				};
-				Relationships: [
-					{
-						foreignKeyName: 'plays_songId_fkey';
-						columns: ['songId'];
-						referencedRelation: 'songs';
-						referencedColumns: ['id'];
-					},
-				];
-			};
-			processing_status: {
+			history_processing_status: {
 				Row: {
 					created_at: string | null;
 					current_step: string | null;
@@ -172,44 +135,132 @@ export type Database = {
 				};
 				Relationships: [];
 			};
+			listening_history_file_infos: {
+				Row: {
+					created_at: string | null;
+					file_name: string | null;
+					file_size_bytes: number | null;
+					has_uploaded_history_file: boolean;
+					id: string;
+					updated_at: string | null;
+					upload_date: string | null;
+					user_id: string;
+					years_available: number[] | null;
+				};
+				Insert: {
+					created_at?: string | null;
+					file_name?: string | null;
+					file_size_bytes?: number | null;
+					has_uploaded_history_file?: boolean;
+					id?: string;
+					updated_at?: string | null;
+					upload_date?: string | null;
+					user_id: string;
+					years_available?: number[] | null;
+				};
+				Update: {
+					created_at?: string | null;
+					file_name?: string | null;
+					file_size_bytes?: number | null;
+					has_uploaded_history_file?: boolean;
+					id?: string;
+					updated_at?: string | null;
+					upload_date?: string | null;
+					user_id?: string;
+					years_available?: number[] | null;
+				};
+				Relationships: [];
+			};
+			plays: {
+				Row: {
+					created_at: string;
+					file_id: string | null;
+					hash: string;
+					id: number;
+					listening_date: string;
+					listening_time: number;
+					song_id: number;
+					user_id: string;
+				};
+				Insert: {
+					created_at?: string;
+					file_id?: string | null;
+					hash: string;
+					id?: number;
+					listening_date: string;
+					listening_time: number;
+					song_id: number;
+					user_id: string;
+				};
+				Update: {
+					created_at?: string;
+					file_id?: string | null;
+					hash?: string;
+					id?: number;
+					listening_date?: string;
+					listening_time?: number;
+					song_id?: number;
+					user_id?: string;
+				};
+				Relationships: [
+					{
+						foreignKeyName: 'plays_file_id_fkey';
+						columns: ['file_id'];
+						referencedRelation: 'listening_history_file_infos';
+						referencedColumns: ['id'];
+					},
+					{
+						foreignKeyName: 'plays_fileId_fkey';
+						columns: ['file_id'];
+						referencedRelation: 'listening_history_file_infos';
+						referencedColumns: ['id'];
+					},
+					{
+						foreignKeyName: 'plays_songId_fkey';
+						columns: ['song_id'];
+						referencedRelation: 'songs';
+						referencedColumns: ['id'];
+					},
+				];
+			};
 			songs: {
 				Row: {
-					albumId: number;
-					artistId: number;
+					album_id: number;
+					artist_id: number;
 					created_at: string;
 					id: number;
 					isrc: string;
-					releaseDate: string | null;
+					release_date: string | null;
 					title: string;
 				};
 				Insert: {
-					albumId: number;
-					artistId: number;
+					album_id: number;
+					artist_id: number;
 					created_at?: string;
 					id?: number;
 					isrc: string;
-					releaseDate?: string | null;
+					release_date?: string | null;
 					title: string;
 				};
 				Update: {
-					albumId?: number;
-					artistId?: number;
+					album_id?: number;
+					artist_id?: number;
 					created_at?: string;
 					id?: number;
 					isrc?: string;
-					releaseDate?: string | null;
+					release_date?: string | null;
 					title?: string;
 				};
 				Relationships: [
 					{
 						foreignKeyName: 'songs_albumId_fkey';
-						columns: ['albumId'];
+						columns: ['album_id'];
 						referencedRelation: 'albums';
 						referencedColumns: ['id'];
 					},
 					{
 						foreignKeyName: 'songs_artistId_fkey';
-						columns: ['artistId'];
+						columns: ['artist_id'];
 						referencedRelation: 'artists';
 						referencedColumns: ['id'];
 					},
