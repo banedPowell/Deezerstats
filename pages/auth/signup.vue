@@ -12,11 +12,13 @@
 
 	const user = ref({
 		mail: '',
+		displayName: '',
 		password: '',
 	});
 
 	const resetUser = () => {
 		user.value.mail = '';
+		user.value.displayName = '';
 		user.value.password = '';
 	};
 
@@ -26,6 +28,11 @@
 		const { data, error } = await supabase.auth.signUp({
 			email: user.value.mail,
 			password: user.value.password,
+			options: {
+				data: {
+					display_name: user.value.displayName,
+				},
+			},
 		});
 
 		if (error) {
@@ -47,8 +54,13 @@
 
 		<form @submit.prevent="createAccount">
 			<label>
+				Pseudo
+				<input v-model="user.displayName" type="text" required />
+			</label>
+
+			<label>
 				Adresse mail
-				<input v-model="user.mail" type="email" />
+				<input v-model="user.mail" type="email" required />
 			</label>
 
 			<label>
