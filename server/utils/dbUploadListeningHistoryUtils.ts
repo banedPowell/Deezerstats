@@ -129,7 +129,7 @@ export function extractSongsAssociatedWithAlbumsAndArtists(
 
 	const songsMap = new Map<
 		string,
-		{ title: string; artistId: number; albumId: number; isrc: string }
+		{ title: string; albumId: number; isrc: string; artistIds: number[] }
 	>();
 
 	for (const record of file) {
@@ -137,20 +137,24 @@ export function extractSongsAssociatedWithAlbumsAndArtists(
 			record.artist,
 			separators,
 		);
-		const artistId = possibleArtists
-			.map((name) => artistNameToId.get(name.toLowerCase()))
-			.find((id) => id !== undefined);
 
-		if (artistId === undefined) {
-			console.warn(`Artist not found: ${record.artist}`);
+		// Find all artist IDs instead of just the first one
+		const artistIds = possibleArtists
+			.map((name) => artistNameToId.get(name.toLowerCase()))
+			.filter((id): id is number => id !== undefined);
+
+		if (artistIds.length === 0) {
+			console.warn(`No artists found for: ${record.artist}`);
 			continue;
 		}
 
-		const albumKey = `${record.albumTitle}-${artistId}`;
+		// For album, we'll still use the first artist ID for now
+		const primaryArtistId = artistIds[0];
+		const albumKey = `${record.albumTitle}-${primaryArtistId}`;
 		const album = albumsMap.get(albumKey);
 		if (!album) {
 			console.warn(
-				`Album not found: ${record.albumTitle} (Artist ID: ${artistId})`,
+				`Album not found: ${record.albumTitle} (Artist ID: ${primaryArtistId})`,
 			);
 			continue;
 		}
@@ -159,10 +163,21 @@ export function extractSongsAssociatedWithAlbumsAndArtists(
 		if (!songsMap.has(songKey)) {
 			songsMap.set(songKey, {
 				title: record.songTitle,
-				artistId,
 				albumId: album.id,
 				isrc: record.isrc,
+				artistIds: artistIds,
 			});
+		} else {
+			// If the song already exists, add any new artist IDs
+			const existingSong = songsMap.get(songKey)!;
+			const existingArtistIdsSet = new Set(existingSong.artistIds);
+
+			// Add any new artist IDs
+			for (const id of artistIds) {
+				existingArtistIdsSet.add(id);
+			}
+
+			existingSong.artistIds = Array.from(existingArtistIdsSet);
 		}
 	}
 
@@ -355,7 +370,6 @@ export async function batchInsertAlbums(
 export interface Song {
 	id: number;
 	title: string;
-	artist_id: number;
 	album_id: number;
 	isrc: string;
 }
@@ -363,9 +377,9 @@ export interface Song {
 export async function batchInsertSongs(
 	songs: Array<{
 		title: string;
-		artistId: number;
 		albumId: number;
 		isrc: string;
+		artistIds: number[];
 	}>,
 	chunkSize: number,
 	event: H3Event,
@@ -392,7 +406,7 @@ export async function batchInsertSongs(
 
 		const { data: existingSongs, error: selectError } = await supabaseClient
 			.from('songs')
-			.select('id, title, artist_id, album_id, isrc')
+			.select('id, title, album_id, isrc')
 			.in('isrc', isrcs);
 
 		const existingISRCs = new Set(existingSongs?.map((s) => s.isrc) ?? []);
@@ -405,26 +419,27 @@ export async function batchInsertSongs(
 			continue;
 		}
 
-		// Marquer les chansons déjà présentes avec vérification stricte
+		// Marquer les chansons déjà présentes
 		for (const existing of existingSongs || []) {
 			songsReturned.set(existing.isrc, existing);
 		}
 
-		// Filtrer uniquement les morceaux qui n'existent pas exactement
+		// Filtrer uniquement les morceaux qui n'existent pas encore
 		const newSongs = chunk.filter((song) => !existingISRCs.has(song.isrc));
 
 		if (newSongs.length === 0) continue;
 
-		// Insérer les nouveaux morceaux
+		// Insérer les nouveaux morceaux (sans artist_id)
 		const { data: insertedSongs, error: insertError } = await supabaseClient
 			.from('songs')
-			.insert(newSongs.map(song => ({
-				title: song.title,
-				artist_id: song.artistId,
-				album_id: song.albumId,
-				isrc: song.isrc
-			})))
-			.select('id, title, artist_id, album_id, isrc');
+			.insert(
+				newSongs.map((song) => ({
+					title: song.title,
+					album_id: song.albumId,
+					isrc: song.isrc,
+				})),
+			)
+			.select('id, title, album_id, isrc');
 
 		if (insertError) {
 			console.error(
@@ -434,8 +449,38 @@ export async function batchInsertSongs(
 			continue;
 		}
 
+		// Ajouter les chansons insérées à notre map de retour
 		for (const song of insertedSongs || []) {
 			songsReturned.set(song.isrc, song);
+		}
+
+		// Maintenant, créons les relations artiste-chanson pour les nouveaux morceaux
+		for (const song of insertedSongs || []) {
+			// Trouver les artistIds correspondants dans notre input
+			const originalSong = newSongs.find((s) => s.isrc === song.isrc);
+			if (!originalSong) continue;
+
+			// Préparer l'insertion des relations
+			const songArtistRelations = originalSong.artistIds.map(
+				(artistId) => ({
+					song_id: song.id,
+					artist_id: artistId,
+				}),
+			);
+
+			// Insérer les relations
+			if (songArtistRelations.length > 0) {
+				const { error: relationsError } = await supabaseClient
+					.from('song_artists')
+					.insert(songArtistRelations);
+
+				if (relationsError) {
+					console.error(
+						"Erreur lors de l'insertion des relations artiste-chanson:",
+						relationsError,
+					);
+				}
+			}
 		}
 	}
 
@@ -487,32 +532,32 @@ export async function batchInsertPlays(
 			record.artist,
 			separators,
 		);
-		const artistId = possibleArtists
+		const artistIds = possibleArtists
 			.map((name) => artistNameToId.get(name.toLowerCase()))
-			.find((id) => id !== undefined);
+			.filter((id): id is number => id !== undefined);
 
-		if (!artistId) {
-			console.warn(`Artiste introuvable pour "${record.artist}"`);
+		if (artistIds.length === 0) {
+			console.warn(`Aucun artiste trouvé pour "${record.artist}"`);
 			continue;
 		}
 
-		// Trouver album
-		const albumKey = `${record.albumTitle}-${artistId}`;
+		// Pour trouver l'album, utiliser le premier artiste (principal)
+		const primaryArtistId = artistIds[0];
+		const albumKey = `${record.albumTitle}-${primaryArtistId}`;
 		const album = albumsMap.get(albumKey);
 		if (!album) {
 			console.warn(
-				`Album introuvable : "${record.albumTitle}" (artistId: ${artistId})`,
+				`Album introuvable : "${record.albumTitle}" (artistId: ${primaryArtistId})`,
 			);
 			continue;
 		}
 
 		// Clé pour la chanson
-
 		const song = songsMap.get(record.isrc);
 
 		if (!song) {
 			console.warn(
-				`Chanson introuvable : "${record.songTitle}" (artistId: ${artistId}, albumId: ${album.id}, isrc: ${record.isrc})`,
+				`Chanson introuvable : "${record.songTitle}" (isrc: ${record.isrc})`,
 			);
 			continue;
 		}
@@ -557,4 +602,36 @@ export async function batchInsertPlays(
 	}
 
 	return { inserted: playsToInsert.length };
+}
+
+export function extractSortedYearsAvailable(file: FileDatas[]) {
+	return Array.from(
+		new Set(file.map((play) => play.date.getFullYear())),
+	).sort((a, b) => b - a);
+}
+
+export async function updateUploadFileInformations(
+	file: FileDatas[],
+	userId: string,
+	event: H3Event,
+) {
+	const supabaseClient = serverSupabaseServiceRole<Database>(event);
+
+	const { data: updateData, error: updateError } = await supabaseClient
+		.from('listening_history_file_infos')
+		.update({
+			has_uploaded_history_file: true,
+			years_available: extractSortedYearsAvailable(file),
+			upload_date: new Date(),
+		})
+		.eq('user_id', userId);
+
+	if (updateError) {
+		console.error(
+			'Erreur lors de la mise à jour des informations:',
+			updateError,
+		);
+	}
+
+	return { updateData };
 }

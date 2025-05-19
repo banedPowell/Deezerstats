@@ -17,6 +17,8 @@ export default defineEventHandler(async (event) => {
 	// Traitement asynchrone en arrière-plan
 	(async () => {
 		try {
+			await updateUploadFileInformations(file, userId, event);
+
 			const separators = [',', 'featuring', 'feat.', 'feat'];
 
 			const artistsNames = extractArtistsNames(file, separators);
@@ -55,9 +57,9 @@ export default defineEventHandler(async (event) => {
 				event,
 			);
 
-			console.log('Traitement du fichier terminé avec succès');
+			console.log('Traitement des données terminé avec succès');
 		} catch (err) {
-			console.error('Erreur lors du traitement du fichier :', err);
+			console.error('Erreur lors du traitement des données :', err);
 		}
 	})();
 
