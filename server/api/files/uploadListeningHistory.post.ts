@@ -1,3 +1,5 @@
+import { RawFileDatas, FileDatas } from '~/types';
+
 export default defineEventHandler(async (event) => {
 	const userId = event.context.auth;
 	if (!userId) {
@@ -22,22 +24,32 @@ export default defineEventHandler(async (event) => {
 			const separators = [',', 'featuring', 'feat.', 'feat'];
 
 			const artistsNames = extractArtistsNames(file, separators);
+
+			console.time("insertion d'artistes");
+
 			const artistsMap = await batchInsertArtists(
 				artistsNames,
 				500,
 				event,
 			);
 
+			console.timeLog("insertion d'artistes");
+
 			const albumsTitlesAndArtistIds = extractAlbumsTitlesAndArtistIds(
 				file,
 				artistsMap,
 				separators,
 			);
+
+			console.time("insertion d'albums");
+
 			const albumsAndArtistsId = await batchInsertAlbums(
 				albumsTitlesAndArtistIds,
 				300,
 				event,
 			);
+
+			console.timeLog("insertion d'albums");
 
 			const songs = extractSongsAssociatedWithAlbumsAndArtists(
 				file,
@@ -45,8 +57,14 @@ export default defineEventHandler(async (event) => {
 				albumsAndArtistsId,
 				separators,
 			);
+
+			console.time('insertion de chansons');
+
 			const songsMap = await batchInsertSongs(songs, 400, event);
 
+			console.timeLog('insertion de chansons');
+
+			console.time('insertion de lectures');
 			await batchInsertPlays(
 				file,
 				songsMap,
@@ -56,6 +74,8 @@ export default defineEventHandler(async (event) => {
 				separators,
 				event,
 			);
+
+			console.timeLog('insertion de lectures');
 
 			console.log('Traitement des données terminé avec succès');
 		} catch (err) {
