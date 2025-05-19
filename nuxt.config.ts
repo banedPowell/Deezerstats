@@ -8,13 +8,13 @@ export default defineNuxtConfig({
 		supabaseKey: process.env.SUPABASE_KEY,
 	},
 
-	modules: [
-		'@pinia/nuxt',
-		'@nuxt/image',
-		'@nuxt/icon',
-		'@nuxt/fonts',
-		'@nuxtjs/supabase',
-	],
+	modules: ['@pinia/nuxt', '@nuxtjs/supabase', '@nuxt/image', '@nuxt/fonts'],
+
+	routeRules: {
+		'/dashboard/**': {
+			ssr: false,
+		},
+	},
 
 	supabase: {
 		url: process.env.SUPABASE_URL,
