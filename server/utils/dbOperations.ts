@@ -1,188 +1,8 @@
 import { serverSupabaseServiceRole } from '#supabase/server';
 import { H3Event } from 'h3';
-import type { Database } from '~/types/supabase';
+import type { Database, Album, Song, FileDatas } from '~/types';
 import crypto from 'crypto';
-
-export interface RawFileDatas {
-	'Song Title': string;
-	Artist: string;
-	ISRC: string;
-	'Album Title': string;
-	'IP Address': string;
-	'Listening Time': string;
-	'Platform Name': string;
-	'Platform Model': string;
-	Date: string;
-}
-
-export interface FileDatas {
-	songTitle: string;
-	artist: string;
-	isrc: string;
-	albumTitle: string;
-	ipAddress: string;
-	listeningTime: number;
-	platformName: string;
-	platformModel: string;
-	date: Date;
-}
-
-interface Album {
-	id: number;
-	title: string;
-	artist_id: number;
-}
-
-export function transformRawDataToFileData(rawData: RawFileDatas): FileDatas {
-	return {
-		songTitle: rawData['Song Title'],
-		artist: rawData.Artist,
-		isrc: rawData.ISRC,
-		albumTitle: rawData['Album Title'],
-		ipAddress: rawData['IP Address'],
-		listeningTime: parseInt(rawData['Listening Time'], 10),
-		platformName: rawData['Platform Name'],
-		platformModel: rawData['Platform Model'],
-		date: new Date(rawData.Date),
-	};
-}
-
-function splitAndNormalizeArtistNames(
-	rawName: string,
-	separators: string[],
-): string[] {
-	let names = [rawName];
-	for (const separator of separators) {
-		names = names.flatMap((name) =>
-			name.toLowerCase().includes(separator.toLowerCase())
-				? name.split(new RegExp(separator, 'i'))
-				: [name],
-		);
-	}
-	return names.map((name) => name.trim()).filter((name) => name);
-}
-
-export function extractArtistsNames(
-	file: FileDatas[],
-	featSeparators: string[],
-) {
-	const artistNamesSet = new Set<string>();
-	for (const record of file) {
-		const names = splitAndNormalizeArtistNames(
-			record.artist,
-			featSeparators,
-		);
-
-		for (const name of names) {
-			const trimmedName = name.trim();
-			if (trimmedName) artistNamesSet.add(trimmedName);
-		}
-	}
-
-	return Array.from(artistNamesSet);
-}
-
-export function extractAlbumsTitlesAndArtistIds(
-	file: FileDatas[],
-	artistsMap: Map<number, string>,
-	separators: string[],
-) {
-	const artistNameToId = new Map(
-		[...artistsMap.entries()].map(([id, name]) => [name.toLowerCase(), id]),
-	);
-
-	const albumsMap = new Map<
-		string,
-		{ albumTitle: string; artistId: number }
-	>();
-
-	for (const record of file) {
-		const possibleArtists = splitAndNormalizeArtistNames(
-			record.artist,
-			separators,
-		);
-		const artistId = possibleArtists
-			.map((name) => artistNameToId.get(name.toLowerCase()))
-			.find((id) => id !== undefined);
-
-		if (artistId !== undefined) {
-			const uniqueKey = `${record.albumTitle}-${artistId}`;
-			albumsMap.set(uniqueKey, {
-				albumTitle: record.albumTitle,
-				artistId,
-			});
-		}
-	}
-
-	return Array.from(albumsMap.values());
-}
-
-export function extractSongsAssociatedWithAlbumsAndArtists(
-	file: FileDatas[],
-	artistsMap: Map<number, string>,
-	albumsMap: Map<string, Album>,
-	separators: string[],
-) {
-	const artistNameToId = new Map(
-		[...artistsMap.entries()].map(([id, name]) => [name.toLowerCase(), id]),
-	);
-
-	const songsMap = new Map<
-		string,
-		{ title: string; albumId: number; isrc: string; artistIds: number[] }
-	>();
-
-	for (const record of file) {
-		const possibleArtists = splitAndNormalizeArtistNames(
-			record.artist,
-			separators,
-		);
-
-		// Find all artist IDs instead of just the first one
-		const artistIds = possibleArtists
-			.map((name) => artistNameToId.get(name.toLowerCase()))
-			.filter((id): id is number => id !== undefined);
-
-		if (artistIds.length === 0) {
-			console.warn(`No artists found for: ${record.artist}`);
-			continue;
-		}
-
-		// For album, we'll still use the first artist ID for now
-		const primaryArtistId = artistIds[0];
-		const albumKey = `${record.albumTitle}-${primaryArtistId}`;
-		const album = albumsMap.get(albumKey);
-		if (!album) {
-			console.warn(
-				`Album not found: ${record.albumTitle} (Artist ID: ${primaryArtistId})`,
-			);
-			continue;
-		}
-
-		const songKey = record.isrc;
-		if (!songsMap.has(songKey)) {
-			songsMap.set(songKey, {
-				title: record.songTitle,
-				albumId: album.id,
-				isrc: record.isrc,
-				artistIds: artistIds,
-			});
-		} else {
-			// If the song already exists, add any new artist IDs
-			const existingSong = songsMap.get(songKey)!;
-			const existingArtistIdsSet = new Set(existingSong.artistIds);
-
-			// Add any new artist IDs
-			for (const id of artistIds) {
-				existingArtistIdsSet.add(id);
-			}
-
-			existingSong.artistIds = Array.from(existingArtistIdsSet);
-		}
-	}
-
-	return Array.from(songsMap.values());
-}
+// import { extractSortedYearsAvailable } from './dataExtractors';
 
 export async function batchInsertArtists(
 	names: string[],
@@ -367,13 +187,6 @@ export async function batchInsertAlbums(
 	return albumsReturned;
 }
 
-export interface Song {
-	id: number;
-	title: string;
-	album_id: number;
-	isrc: string;
-}
-
 export async function batchInsertSongs(
 	songs: Array<{
 		title: string;
@@ -384,15 +197,9 @@ export async function batchInsertSongs(
 	chunkSize: number,
 	event: H3Event,
 ) {
-	const userId = event.context.auth;
-	if (!userId) {
-		console.error(401, 'Utilisateur non authentifié', event);
-	}
-
 	const supabaseClient = serverSupabaseServiceRole<Database>(event);
-	const songsReturned: Map<string, Song> = new Map();
 
-	// Découpage en chunks
+	// on va découper notre traitement en chunks/batchs
 	const chunks = songs.reduce<(typeof songs)[]>((acc, song, index) => {
 		const chunkIndex = Math.floor(index / chunkSize);
 		if (!acc[chunkIndex]) acc[chunkIndex] = [];
@@ -400,36 +207,48 @@ export async function batchInsertSongs(
 		return acc;
 	}, []);
 
+	// Retourner une map ISRC => chanson
+	const songsReturned = new Map<
+		string,
+		{ id: number; title: string; album_id: number; isrc: string }
+	>();
+
+	// Pour chaque chunk
 	for (const chunk of chunks) {
-		// Récupérer tous les isrc par chunk
-		const isrcs = Array.from(new Set(chunk.map((s) => s.isrc)));
+		// Filtrer les chansons déjà existantes par ISRC
+		const isrcs = chunk.map((song) => song.isrc);
+		const { data: existingSongs, error: existingError } =
+			await supabaseClient
+				.from('songs')
+				.select('id, title, album_id, isrc')
+				.in('isrc', isrcs);
 
-		const { data: existingSongs, error: selectError } = await supabaseClient
-			.from('songs')
-			.select('id, title, album_id, isrc')
-			.in('isrc', isrcs);
-
-		const existingISRCs = new Set(existingSongs?.map((s) => s.isrc) ?? []);
-
-		if (selectError) {
-			console.warn(
-				'Erreur lors de la récupération des chansons:',
-				selectError,
+		if (existingError) {
+			console.error(
+				'Erreur lors de la récupération des chansons existantes:',
+				existingError,
 			);
 			continue;
 		}
 
-		// Marquer les chansons déjà présentes
-		for (const existing of existingSongs || []) {
-			songsReturned.set(existing.isrc, existing);
+		// Ajouter les chansons existantes à notre map
+		for (const song of existingSongs || []) {
+			songsReturned.set(song.isrc, song);
 		}
 
-		// Filtrer uniquement les morceaux qui n'existent pas encore
-		const newSongs = chunk.filter((song) => !existingISRCs.has(song.isrc));
+		// Identifier les nouvelles chansons à insérer
+		const existingIsrcs = new Set(
+			(existingSongs || []).map((song) => song.isrc),
+		);
+		const newSongs = chunk.filter((song) => !existingIsrcs.has(song.isrc));
 
+		// S'il n'y a pas de nouvelles chansons, passer au chunk suivant
 		if (newSongs.length === 0) continue;
 
-		// Insérer les nouveaux morceaux (sans artist_id)
+		// Créer une map pour un accès rapide aux originalSongs par ISRC
+		const songsMap = new Map(newSongs.map((song) => [song.isrc, song]));
+
+		// Insérer les nouvelles chansons
 		const { data: insertedSongs, error: insertError } = await supabaseClient
 			.from('songs')
 			.insert(
@@ -443,7 +262,7 @@ export async function batchInsertSongs(
 
 		if (insertError) {
 			console.error(
-				"Erreur lors de l'insertion des morceaux:",
+				"Erreur lors de l'insertion des chansons:",
 				insertError,
 			);
 			continue;
@@ -454,32 +273,35 @@ export async function batchInsertSongs(
 			songsReturned.set(song.isrc, song);
 		}
 
+		// Préparer toutes les relations artiste-chanson en une seule fois
+		const allSongArtistRelations = [];
+
 		// Maintenant, créons les relations artiste-chanson pour les nouveaux morceaux
 		for (const song of insertedSongs || []) {
-			// Trouver les artistIds correspondants dans notre input
-			const originalSong = newSongs.find((s) => s.isrc === song.isrc);
+			// Trouver les artistIds correspondants dans notre map par ISRC (O(1) au lieu de O(n))
+			const originalSong = songsMap.get(song.isrc);
 			if (!originalSong) continue;
 
-			// Préparer l'insertion des relations
-			const songArtistRelations = originalSong.artistIds.map(
-				(artistId) => ({
+			// Ajouter les relations à notre collection
+			originalSong.artistIds.forEach((artistId) => {
+				allSongArtistRelations.push({
 					song_id: song.id,
 					artist_id: artistId,
-				}),
-			);
+				});
+			});
+		}
 
-			// Insérer les relations
-			if (songArtistRelations.length > 0) {
-				const { error: relationsError } = await supabaseClient
-					.from('song_artists')
-					.insert(songArtistRelations);
+		// Insérer toutes les relations en une seule requête
+		if (allSongArtistRelations.length > 0) {
+			const { error: relationsError } = await supabaseClient
+				.from('song_artists')
+				.insert(allSongArtistRelations);
 
-				if (relationsError) {
-					console.error(
-						"Erreur lors de l'insertion des relations artiste-chanson:",
-						relationsError,
-					);
-				}
+			if (relationsError) {
+				console.error(
+					"Erreur lors de l'insertion des relations artiste-chanson:",
+					relationsError,
+				);
 			}
 		}
 	}
@@ -602,12 +424,6 @@ export async function batchInsertPlays(
 	}
 
 	return { inserted: playsToInsert.length };
-}
-
-export function extractSortedYearsAvailable(file: FileDatas[]) {
-	return Array.from(
-		new Set(file.map((play) => play.date.getFullYear())),
-	).sort((a, b) => b - a);
 }
 
 export async function updateUploadFileInformations(
