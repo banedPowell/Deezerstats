@@ -64,7 +64,7 @@
 			cursor: pointer;
 			user-select: none;
 
-			// transition: color 0.1s ease-in-out;
+			transition: color 0.1s ease-in-out;
 
 			&:hover {
 				color: $primary;
