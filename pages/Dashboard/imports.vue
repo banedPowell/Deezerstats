@@ -1,4 +1,6 @@
-<script lang="ts" setup></script>
+<script lang="ts" setup>
+	import { Icon } from '@iconify/vue';
+</script>
 
 <template>
 	<section class="imports">
@@ -8,13 +10,9 @@
 
 		<NuxtLink to="/dashboard">
 			<DButton class="back-button" size="small" type="secondary">
-				<!--				<Icon-->
-				<!--					class="icon"-->
-				<!--					name="lucide:chevron-left"-->
-				<!--					style="color: white"-->
-				<!--				/>-->
+				<Icon icon="lucide:chevron-left" :ssr="true" />
 
-				< Retour
+				Retour
 			</DButton>
 		</NuxtLink>
 
@@ -43,7 +41,5 @@
 		align-items: center;
 		justify-content: center;
 		gap: 50px;
-
-		//margin-top: 50px;
 	}
 </style>
