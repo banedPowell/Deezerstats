@@ -1,18 +1,17 @@
 <script lang="ts" setup>
 	import * as XLSX from 'xlsx';
+	import { Icon } from '@iconify/vue';
 
 	const isLoading = ref(false);
 	const fileInput = ref<HTMLInputElement | null>(null);
 	const file = ref();
 	const isFileReady = computed(() => !!file.value);
+	const isDragging = ref(false);
 
 	const session = useSupabaseSession();
 
-	const handleFileInput = async (event: Event) => {
+	const processFile = async (fileToProcess: File) => {
 		isLoading.value = true;
-
-		const target = event.target as HTMLInputElement;
-		const fileToProcess = target.files?.[0];
 
 		if (!fileToProcess) return;
 
@@ -34,11 +33,49 @@
 		} catch (err: any) {
 			console.error(
 				'Erreur lors du traitement du fichier :',
-
 				err.message,
 			);
 		} finally {
 			isLoading.value = false;
+		}
+	};
+
+	const handleFileInput = async (event: Event) => {
+		const target = event.target as HTMLInputElement;
+		const fileToProcess = target.files?.[0];
+
+		if (fileToProcess) {
+			await processFile(fileToProcess);
+		}
+	};
+
+	const handleDragOver = (event: DragEvent) => {
+		event.preventDefault();
+		event.stopPropagation();
+		isDragging.value = true;
+	};
+
+	const handleDragLeave = (event: DragEvent) => {
+		event.preventDefault();
+		event.stopPropagation();
+		isDragging.value = false;
+	};
+
+	const handleDrop = async (event: DragEvent) => {
+		event.preventDefault();
+		event.stopPropagation();
+		isDragging.value = false;
+
+		const droppedFiles = event.dataTransfer?.files;
+		if (droppedFiles && droppedFiles.length > 0) {
+			const fileToProcess = droppedFiles[0];
+			// Vérifier si c'est un fichier Excel
+			if (
+				fileToProcess.name.endsWith('.xlsx') ||
+				fileToProcess.name.endsWith('.xls')
+			) {
+				await processFile(fileToProcess);
+			}
 		}
 	};
 
@@ -68,11 +105,22 @@
 </script>
 
 <template>
-	<div class="dropzone">
+	<div
+		class="dropzone"
+		:class="{ 'dropzone--dragging': isDragging }"
+		@dragover="handleDragOver"
+		@dragleave="handleDragLeave"
+		@drop="handleDrop"
+	>
 		<p v-if="isFileReady">Fichier prêt</p>
 
 		<label v-else class="dropzone__label">
-			Choisissez un fichier
+			<span v-if="isDragging">Déposez votre fichier ici</span>
+			<span v-else>Choisissez un fichier ou glissez-le ici</span>
+			<span v-if="isLoading && !isFileReady" class="loading">
+				<Icon class="turning-icon" icon="lucide:loader" :ssr="true" />
+				Attendez la fin du traitement du fichier...
+			</span>
 			<input
 				ref="fileInput"
 				accept=".xlsx,.xls"
@@ -116,13 +164,8 @@
 		</DButton>
 	</div>
 
-	<div v-if="isLoading && !isFileReady" class="loading">
-		<Icon name="lucide:loader" />
-		Attendez la fin du traitement du fichier...
-	</div>
-
 	<div v-if="isLoading && isFileReady" class="loading">
-		<Icon name="lucide:loader" />
+		<Icon class="turning-icon" icon="lucide:loader" :ssr="true" />
 		Envoi en cours
 	</div>
 
@@ -139,6 +182,12 @@
 		border-radius: 20px;
 		border: 1px dashed $strokes;
 		user-select: none;
+		transition: all 0.2s ease;
+
+		&--dragging {
+			border: 2px dashed $primary;
+			background-color: rgba($primary, 0.05);
+		}
 
 		&__label {
 			display: flex;
@@ -173,5 +222,19 @@
 
 	input[type='file'] {
 		display: none;
+	}
+
+	.turning-icon {
+		animation: turning 1s linear infinite;
+	}
+
+	@keyframes turning {
+		from {
+			transform: rotate(0deg);
+		}
+
+		to {
+			transform: rotate(360deg);
+		}
 	}
 </style>
