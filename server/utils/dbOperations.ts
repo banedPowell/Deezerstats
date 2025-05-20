@@ -2,7 +2,30 @@ import { serverSupabaseServiceRole } from '#supabase/server';
 import { H3Event } from 'h3';
 import type { Database, Album, Song, FileDatas } from '~/types';
 import crypto from 'crypto';
-// import { extractSortedYearsAvailable } from './dataExtractors';
+
+export async function updateProcessingStatus({
+	userId,
+	status,
+	currentStep,
+	event,
+}: {
+	userId: string;
+	status: 'pending' | 'processing' | 'done' | 'error';
+	currentStep: string;
+	event: H3Event;
+}) {
+	const client = serverSupabaseServiceRole<Database>(event);
+
+	await client.from('history_processing_status').upsert(
+		{
+			user_id: userId,
+			status,
+			current_step: currentStep,
+			updated_at: new Date().toISOString(),
+		},
+		{ onConflict: 'user_id' },
+	);
+}
 
 export async function batchInsertArtists(
 	names: string[],

@@ -23,9 +23,19 @@ export default defineEventHandler(async (event) => {
 
 			const separators = [',', 'featuring', 'feat.', 'feat'];
 
-			const artistsNames = extractArtistsNames(file, separators);
-
 			console.time("insertion d'artistes");
+
+			await updateProcessingStatus({
+				userId,
+				status: 'processing',
+				currentStep: {
+					step: 'Artistes',
+					description: 'Ajout des artistes à la base de données',
+				},
+				event,
+			});
+
+			const artistsNames = extractArtistsNames(file, separators);
 
 			const artistsMap = await batchInsertArtists(
 				artistsNames,
@@ -35,21 +45,41 @@ export default defineEventHandler(async (event) => {
 
 			console.timeLog("insertion d'artistes");
 
+			console.time("insertion d'albums");
+
+			await updateProcessingStatus({
+				userId,
+				status: 'processing',
+				currentStep: {
+					step: 'Albums',
+					description: 'Ajout des albums à la base de données',
+				},
+				event,
+			});
+
 			const albumsTitlesAndArtistIds = extractAlbumsTitlesAndArtistIds(
 				file,
 				artistsMap,
 				separators,
 			);
 
-			console.time("insertion d'albums");
-
 			const albumsAndArtistsId = await batchInsertAlbums(
 				albumsTitlesAndArtistIds,
 				300,
 				event,
 			);
-
 			console.timeLog("insertion d'albums");
+
+			console.time('Insertion des chansons en base de données');
+			await updateProcessingStatus({
+				userId,
+				status: 'processing',
+				currentStep: {
+					step: 'Morceaux',
+					description: 'Ajout des morceaux à la base de données',
+				},
+				event,
+			});
 
 			const songs = extractSongsAssociatedWithAlbumsAndArtists(
 				file,
@@ -58,13 +88,21 @@ export default defineEventHandler(async (event) => {
 				separators,
 			);
 
-			console.time('insertion de chansons');
-
 			const songsMap = await batchInsertSongs(songs, 400, event);
 
-			console.timeLog('insertion de chansons');
+			console.timeLog('Insertion des chansons en base de données');
 
 			console.time('insertion de lectures');
+			await updateProcessingStatus({
+				userId,
+				status: 'processing',
+				currentStep: {
+					step: 'Historique',
+					description:
+						"Ajout de l'historique de lectures à la base de données",
+				},
+				event,
+			});
 			await batchInsertPlays(
 				file,
 				songsMap,
@@ -77,9 +115,26 @@ export default defineEventHandler(async (event) => {
 
 			console.timeLog('insertion de lectures');
 
-			console.log('Traitement des données terminé avec succès');
+			await updateProcessingStatus({
+				userId,
+				status: 'done',
+				currentStep: {
+					step: 'Fin',
+					description: 'Traitement des données terminé',
+				},
+				event,
+			});
 		} catch (err) {
 			console.error('Erreur lors du traitement des données :', err);
+			await updateProcessingStatus({
+				userId,
+				status: 'error',
+				currentStep: {
+					step: 'Erreur',
+					description: 'Erreur lors du traitement des données',
+				},
+				event,
+			});
 		}
 	})();
 
