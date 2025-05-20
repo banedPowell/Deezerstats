@@ -9,23 +9,6 @@
 			},
 		],
 	});
-
-	const supabase = useSupabaseClient();
-
-	const channels = supabase
-		.channel('custom-all-channel')
-		.on(
-			'postgres_changes',
-			{
-				event: '*',
-				schema: 'public',
-				table: 'history_processing_status',
-			},
-			(payload) => {
-				console.log('Change received!', payload);
-			},
-		)
-		.subscribe();
 </script>
 
 <template>
