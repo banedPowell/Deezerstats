@@ -36,3 +36,25 @@ export interface Song {
 	album_id: number;
 	isrc: string;
 }
+
+export interface ProcessingStatusPayload {
+	schema: string;
+	table: string;
+	commit_timestamp: string;
+	eventType: 'INSERT' | 'UPDATE' | 'DELETE';
+	new: {
+		created_at: string;
+		current_step: string;
+		id: string;
+		status: 'processing' | 'completed' | 'error';
+		updated_at: string;
+		user_id: string;
+	};
+	old: Record<string, any>;
+	errors: null;
+}
+
+export interface CurrentStep {
+	title: string;
+	description: string;
+}
