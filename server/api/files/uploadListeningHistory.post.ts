@@ -29,7 +29,7 @@ export default defineEventHandler(async (event) => {
 				userId,
 				status: 'processing',
 				currentStep: {
-					step: 'Artistes',
+					title: 'Artistes',
 					description: 'Ajout des artistes à la base de données',
 				},
 				event,
@@ -51,7 +51,7 @@ export default defineEventHandler(async (event) => {
 				userId,
 				status: 'processing',
 				currentStep: {
-					step: 'Albums',
+					title: 'Albums',
 					description: 'Ajout des albums à la base de données',
 				},
 				event,
@@ -75,7 +75,7 @@ export default defineEventHandler(async (event) => {
 				userId,
 				status: 'processing',
 				currentStep: {
-					step: 'Morceaux',
+					title: 'Morceaux',
 					description: 'Ajout des morceaux à la base de données',
 				},
 				event,
@@ -97,7 +97,7 @@ export default defineEventHandler(async (event) => {
 				userId,
 				status: 'processing',
 				currentStep: {
-					step: 'Historique',
+					title: 'Historique',
 					description:
 						"Ajout de l'historique de lectures à la base de données",
 				},
@@ -119,7 +119,7 @@ export default defineEventHandler(async (event) => {
 				userId,
 				status: 'done',
 				currentStep: {
-					step: 'Fin',
+					title: 'Fin',
 					description: 'Traitement des données terminé',
 				},
 				event,
@@ -130,7 +130,7 @@ export default defineEventHandler(async (event) => {
 				userId,
 				status: 'error',
 				currentStep: {
-					step: 'Erreur',
+					title: 'Erreur',
 					description: 'Erreur lors du traitement des données',
 				},
 				event,

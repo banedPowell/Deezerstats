@@ -11,7 +11,7 @@ export async function updateProcessingStatus({
 }: {
 	userId: string;
 	status: 'pending' | 'processing' | 'done' | 'error';
-	currentStep: string;
+	currentStep: { title: string; description: string };
 	event: H3Event;
 }) {
 	const client = serverSupabaseServiceRole<Database>(event);
@@ -20,7 +20,7 @@ export async function updateProcessingStatus({
 		{
 			user_id: userId,
 			status,
-			current_step: currentStep,
+			current_step: JSON.stringify(currentStep),
 			updated_at: new Date().toISOString(),
 		},
 		{ onConflict: 'user_id' },
@@ -297,7 +297,8 @@ export async function batchInsertSongs(
 		}
 
 		// Préparer toutes les relations artiste-chanson en une seule fois
-		const allSongArtistRelations = [];
+		const allSongArtistRelations: { song_id: number; artist_id: number }[] =
+			[];
 
 		// Maintenant, créons les relations artiste-chanson pour les nouveaux morceaux
 		for (const song of insertedSongs || []) {
@@ -372,7 +373,7 @@ export async function batchInsertPlays(
 	}[] = [];
 
 	for (const [index, record] of file.entries()) {
-		// Trouver l’artistId
+		// Trouver l'artistId
 		const possibleArtists = splitAndNormalizeArtistNames(
 			record.artist,
 			separators,
@@ -407,7 +408,7 @@ export async function batchInsertPlays(
 			continue;
 		}
 
-		// Préparer l’entrée play
+		// Préparer l'entrée play
 		const hash = computePlayHash(
 			userId,
 			song.id,
@@ -461,7 +462,7 @@ export async function updateUploadFileInformations(
 		.update({
 			has_uploaded_history_file: true,
 			years_available: extractSortedYearsAvailable(file),
-			upload_date: new Date(),
+			upload_date: new Date().toISOString(),
 		})
 		.eq('user_id', userId);
 
