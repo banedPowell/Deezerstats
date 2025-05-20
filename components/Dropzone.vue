@@ -7,6 +7,7 @@
 	const file = ref();
 	const isFileReady = computed(() => !!file.value);
 	const isDragging = ref(false);
+	const isVisible = ref(true);
 
 	const session = useSupabaseSession();
 
@@ -100,76 +101,97 @@
 			isLoading.value = false;
 			response.value = res;
 			removeFile();
+			emit('fileSent');
+
+			setTimeout(() => {
+				isVisible.value = false;
+			}, 1000);
 		}
 	};
+
+	const test = ref(true);
+
+	const emit = defineEmits(['fileSent']);
 </script>
 
 <template>
-	<div
-		class="dropzone"
-		:class="{ 'dropzone--dragging': isDragging }"
-		@dragover="handleDragOver"
-		@dragleave="handleDragLeave"
-		@drop="handleDrop"
-	>
-		<p v-if="isFileReady">Fichier prêt</p>
-
-		<label v-else class="dropzone__label">
-			<span v-if="isDragging">Déposez votre fichier ici</span>
-			<span v-else>Choisissez un fichier ou glissez-le ici</span>
-			<span v-if="isLoading && !isFileReady" class="loading">
-				<Icon class="turning-icon" icon="lucide:loader" :ssr="true" />
-				Attendez la fin du traitement du fichier...
-			</span>
-			<input
-				ref="fileInput"
-				accept=".xlsx,.xls"
-				type="file"
-				@input="handleFileInput"
-			/>
-		</label>
-	</div>
-
-	<div v-if="isFileReady" class="actions">
-		<div v-if="isLoading" class="actions">
-			<DButton :disabled="isLoading" size="small" type="primary">
-				Envoyer
-			</DButton>
-
-			<DButton :disabled="isLoading" size="small" type="secondary">
-				Supprimer le fichier
-			</DButton>
-		</div>
-
-		<div v-else class="actions">
-			<DButton size="small" type="primary" @click="submit">
-				Envoyer
-			</DButton>
-
-			<DButton
-				:disabled="isLoading"
-				size="small"
-				type="secondary"
-				@click="removeFile"
+	<Transition name="fade">
+		<div class="dropzone__wrapper" v-if="isVisible">
+			<div
+				class="dropzone"
+				:class="{ 'dropzone--dragging': isDragging, test: test }"
+				@dragover="handleDragOver"
+				@dragleave="handleDragLeave"
+				@drop="handleDrop"
 			>
-				Supprimer le fichier
-			</DButton>
+				<p v-if="isFileReady">Fichier prêt</p>
+
+				<label v-else class="dropzone__label">
+					<span v-if="isDragging">Déposez votre fichier ici</span>
+					<span v-else>Choisissez un fichier ou glissez-le ici</span>
+					<span v-if="isLoading && !isFileReady" class="loading">
+						<Icon
+							class="turning-icon"
+							icon="lucide:loader"
+							:ssr="true"
+						/>
+						Attendez la fin du traitement du fichier...
+					</span>
+					<input
+						ref="fileInput"
+						accept=".xlsx,.xls"
+						type="file"
+						@input="handleFileInput"
+					/>
+				</label>
+			</div>
+
+			<div v-if="isFileReady" class="actions">
+				<div v-if="isLoading" class="actions">
+					<DButton :disabled="isLoading" size="small" type="primary">
+						Envoyer
+					</DButton>
+
+					<DButton
+						:disabled="isLoading"
+						size="small"
+						type="secondary"
+					>
+						Supprimer le fichier
+					</DButton>
+				</div>
+
+				<div v-else class="actions">
+					<DButton size="small" type="primary" @click="submit">
+						Envoyer
+					</DButton>
+
+					<DButton
+						:disabled="isLoading"
+						size="small"
+						type="secondary"
+						@click="removeFile"
+					>
+						Supprimer le fichier
+					</DButton>
+				</div>
+			</div>
+
+			<div v-else class="actions">
+				<DButton disabled size="small" type="primary">Envoyer</DButton>
+				<DButton disabled size="small" type="secondary"
+					>Supprimer le fichier
+				</DButton>
+			</div>
+
+			<div v-if="isLoading && isFileReady" class="loading">
+				<Icon class="turning-icon" icon="lucide:loader" :ssr="true" />
+				Envoi en cours
+			</div>
+
+			<p class="response" v-if="response">{{ response }}</p>
 		</div>
-	</div>
-
-	<div v-else class="actions">
-		<DButton disabled size="small" type="primary">Envoyer</DButton>
-		<DButton disabled size="small" type="secondary"
-			>Supprimer le fichier
-		</DButton>
-	</div>
-
-	<div v-if="isLoading && isFileReady" class="loading">
-		<Icon class="turning-icon" icon="lucide:loader" :ssr="true" />
-		Envoi en cours
-	</div>
-
-	<p class="response" v-if="response">{{ response }}</p>
+	</Transition>
 </template>
 
 <style lang="scss" scoped>
@@ -187,6 +209,14 @@
 		&--dragging {
 			border: 2px dashed $primary;
 			background-color: rgba($primary, 0.05);
+		}
+
+		&__wrapper {
+			display: flex;
+			flex-direction: column;
+			gap: 30px;
+
+			width: 100%;
 		}
 
 		&__label {
@@ -236,5 +266,15 @@
 		to {
 			transform: rotate(360deg);
 		}
+	}
+
+	.fade-enter-active,
+	.fade-leave-active {
+		transition: opacity 0.5s ease;
+	}
+
+	.fade-enter-from,
+	.fade-leave-to {
+		opacity: 0;
 	}
 </style>
