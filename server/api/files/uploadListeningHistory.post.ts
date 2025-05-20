@@ -23,8 +23,6 @@ export default defineEventHandler(async (event) => {
 
 			const separators = [',', 'featuring', 'feat.', 'feat'];
 
-			console.time("insertion d'artistes");
-
 			await updateProcessingStatus({
 				userId,
 				status: 'processing',
@@ -42,10 +40,6 @@ export default defineEventHandler(async (event) => {
 				500,
 				event,
 			);
-
-			console.timeLog("insertion d'artistes");
-
-			console.time("insertion d'albums");
 
 			await updateProcessingStatus({
 				userId,
@@ -68,9 +62,6 @@ export default defineEventHandler(async (event) => {
 				300,
 				event,
 			);
-			console.timeLog("insertion d'albums");
-
-			console.time('Insertion des chansons en base de données');
 			await updateProcessingStatus({
 				userId,
 				status: 'processing',
@@ -90,9 +81,6 @@ export default defineEventHandler(async (event) => {
 
 			const songsMap = await batchInsertSongs(songs, 400, event);
 
-			console.timeLog('Insertion des chansons en base de données');
-
-			console.time('insertion de lectures');
 			await updateProcessingStatus({
 				userId,
 				status: 'processing',
@@ -112,8 +100,6 @@ export default defineEventHandler(async (event) => {
 				separators,
 				event,
 			);
-
-			console.timeLog('insertion de lectures');
 
 			await updateProcessingStatus({
 				userId,
