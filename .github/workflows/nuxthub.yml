@@ -37,4 +37,4 @@ jobs:
         uses: nuxt-hub/action@v1
         id: deploy
         with:
-          project-key: deezerstats-vx42
+          project-key: deezerstats-3bhk
