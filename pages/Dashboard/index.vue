@@ -77,6 +77,12 @@
 		)
 		.subscribe();
 
+	watch(currentStep, () => {
+		if (currentStep.value.title === 'Pending') {
+			fileSent.value = true;
+			processingDatas.value = true;
+		}
+	});
 	// Récupérer les informations d'import de l'utilisateur
 	const { data: historyData } = useAsyncData(
 		'userHistory',
@@ -323,9 +329,7 @@
 		<section class="send-file" v-if="!fileSent">
 			<h2 class="title">Vous n'avez pas encore de top</h2>
 
-			<Dropzone
-				@fileSent="((fileSent = true), (processingDatas = true))"
-			/>
+			<Dropzone />
 		</section>
 	</div>
 </template>
