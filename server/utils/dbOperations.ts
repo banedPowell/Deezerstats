@@ -1,22 +1,23 @@
 import { serverSupabaseServiceRole } from '#supabase/server';
 import { H3Event } from 'h3';
 import type { Database, Album, Song, FileDatas } from '~/types';
-import crypto from 'crypto';
 
-export async function updateProcessingStatus({
+export const updateProcessingStatus = async ({
 	userId,
 	status,
 	currentStep,
-	event,
 }: {
 	userId: string;
-	status: 'pending' | 'processing' | 'done' | 'error';
+	status: 'waiting' | 'pending' | 'processing' | 'done' | 'error';
 	currentStep: { title: string; description: string };
-	event: H3Event;
-}) {
-	const client = serverSupabaseServiceRole<Database>(event);
+}) => {
+	if (!userId) {
+		console.error(401, 'Utilisateur non authentifié');
+	}
 
-	await client.from('history_processing_status').upsert(
+	const supabaseClient = supabaseAdmin();
+
+	await supabaseClient.from('history_processing_status').upsert(
 		{
 			user_id: userId,
 			status,
@@ -25,19 +26,19 @@ export async function updateProcessingStatus({
 		},
 		{ onConflict: 'user_id' },
 	);
-}
+};
 
-export async function batchInsertArtists(
+export const batchInsertArtists = async (
+	userId: string,
 	names: string[],
 	chunkSize: number,
-	event: H3Event,
-) {
-	const userId = event.context.auth;
+) => {
 	if (!userId) {
-		console.error(401, 'Utilisateur non authentifié', event);
+		console.error(401, 'Utilisateur non authentifié');
 	}
 
-	const supabaseClient = serverSupabaseServiceRole<Database>(event);
+	const supabaseClient = supabaseAdmin();
+
 	const artistMap = new Map<number, string>();
 
 	// Diviser les noms en chunks de manière fonctionnelle
@@ -101,19 +102,18 @@ export async function batchInsertArtists(
 	}
 
 	return artistMap;
-}
+};
 
-export async function batchInsertAlbums(
+export const batchInsertAlbums = async (
+	userId: string,
 	albumsArray: Array<{ albumTitle: string; artistId: number }>,
 	chunkSize: number,
-	event: H3Event,
-) {
-	const userId = event.context.auth;
+) => {
 	if (!userId) {
-		console.error(401, 'Utilisateur non authentifié', event);
+		console.error(401, 'Utilisateur non authentifié');
 	}
 
-	const supabaseClient = serverSupabaseServiceRole<Database>(event);
+	const supabaseClient = supabaseAdmin();
 	const albumsReturned: Map<string, Album> = new Map();
 
 	// Diviser les albums en chunks
@@ -208,9 +208,10 @@ export async function batchInsertAlbums(
 	}
 
 	return albumsReturned;
-}
+};
 
-export async function batchInsertSongs(
+export const batchInsertSongs = async (
+	userId: string,
 	songs: Array<{
 		title: string;
 		albumId: number;
@@ -218,9 +219,12 @@ export async function batchInsertSongs(
 		artistIds: number[];
 	}>,
 	chunkSize: number,
-	event: H3Event,
-) {
-	const supabaseClient = serverSupabaseServiceRole<Database>(event);
+) => {
+	if (!userId) {
+		console.error(401, 'Utilisateur non authentifié');
+	}
+
+	const supabaseClient = supabaseAdmin();
 
 	// on va découper notre traitement en chunks/batchs
 	const chunks = songs.reduce<(typeof songs)[]>((acc, song, index) => {
@@ -331,35 +335,35 @@ export async function batchInsertSongs(
 	}
 
 	return songsReturned;
-}
+};
 
-function computePlayHash(
+const computePlayHash = (
 	userId: string,
 	songId: number,
 	listeningTime: number,
 	listeningDate: string,
 	lineIndex: number,
-): string {
+): string => {
 	const raw = `${userId}-${songId}-${listeningTime}-${listeningDate}-${lineIndex}`;
-	return crypto.createHash('sha256').update(raw).digest('hex');
-}
 
-export async function batchInsertPlays(
+	return raw;
+};
+
+export const batchInsertPlays = async (
+	userId: string,
 	file: FileDatas[],
 	songsMap: Map<string, Song>,
 	artistsMap: Map<number, string>,
 	albumsMap: Map<string, Album>,
 	chunkSize: number,
 	separators: string[],
-	event: H3Event,
-) {
-	const userId = event.context.auth;
+) => {
 	if (!userId) {
-		console.error(401, 'Utilisateur non authentifié', event);
+		console.error(401, 'Utilisateur non authentifié');
 		return;
 	}
 
-	const supabaseClient = serverSupabaseServiceRole<Database>(event);
+	const supabaseClient = supabaseAdmin();
 	const artistNameToId = new Map(
 		[...artistsMap.entries()].map(([id, name]) => [name.toLowerCase(), id]),
 	);
@@ -448,14 +452,13 @@ export async function batchInsertPlays(
 	}
 
 	return { inserted: playsToInsert.length };
-}
+};
 
-export async function updateUploadFileInformations(
+export const updateUploadFileInformations = async (
 	file: FileDatas[],
 	userId: string,
-	event: H3Event,
-) {
-	const supabaseClient = serverSupabaseServiceRole<Database>(event);
+) => {
+	const supabaseClient = supabaseAdmin();
 
 	const { data: updateData, error: updateError } = await supabaseClient
 		.from('listening_history_file_infos')
@@ -474,4 +477,4 @@ export async function updateUploadFileInformations(
 	}
 
 	return { updateData };
-}
+};
