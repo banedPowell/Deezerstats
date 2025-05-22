@@ -55,6 +55,13 @@ export default defineNuxtConfig({
 		],
 	},
 
+	components: [
+		{
+			path: '~/components',
+			pathPrefix: false,
+		},
+	],
+
 	vite: {
 		css: {
 			preprocessorOptions: {
