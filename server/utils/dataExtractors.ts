@@ -1,3 +1,5 @@
+import { FileDatas, Album } from '~/types';
+
 export function extractArtistsNames(
 	file: FileDatas[],
 	featSeparators: string[],
