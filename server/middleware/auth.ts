@@ -5,7 +5,7 @@ export default defineEventHandler(async (event) => {
 
 	if (
 		!url.pathname.startsWith('/api') ||
-		!url.pathname.startsWith('/api/_hub/**')
+		url.pathname.startsWith('/api/_hub/**')
 	) {
 		return;
 	}
