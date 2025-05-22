@@ -27,3 +27,4 @@ logs
 *.sqlite
 *.sql
 /server/database/migrations
+.wrangler
