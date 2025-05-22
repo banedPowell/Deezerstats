@@ -10,6 +10,7 @@
 	const isVisible = ref(true);
 
 	const session = useSupabaseSession();
+	const user = useSupabaseUser();
 
 	const processFile = async (fileToProcess: File) => {
 		isLoading.value = true;
@@ -89,11 +90,11 @@
 	const submit = async () => {
 		isLoading.value = true;
 
-		const res = await $fetch('/api/files/uploadListeningHistory', {
+		const res = await $fetch('/api/history/upload', {
 			method: 'POST',
 			body: { files: file.value },
 			headers: {
-				Authorization: `Bearer ${session.value?.access_token}`,
+				Authorization: `Bearer ${session.value?.access_token} ${user.value?.id}`,
 			},
 		});
 
@@ -102,14 +103,8 @@
 			response.value = res;
 			removeFile();
 			emit('fileSent');
-
-			setTimeout(() => {
-				isVisible.value = false;
-			}, 1000);
 		}
 	};
-
-	const test = ref(true);
 
 	const emit = defineEmits(['fileSent']);
 </script>
@@ -119,7 +114,7 @@
 		<div class="dropzone__wrapper" v-if="isVisible">
 			<div
 				class="dropzone"
-				:class="{ 'dropzone--dragging': isDragging, test: test }"
+				:class="{ 'dropzone--dragging': isDragging }"
 				@dragover="handleDragOver"
 				@dragleave="handleDragLeave"
 				@drop="handleDrop"
