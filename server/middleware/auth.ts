@@ -29,10 +29,10 @@ export default defineEventHandler(async (event) => {
 
 		if (error || !user) {
 			setResponseStatus(event, 401, 'Unauthorized - Invalid token');
+		} else {
+			// Ajouter l'ID de l'utilisateur au contexte de la requête
+			event.context.auth = user.id;
 		}
-
-		// Ajouter l'ID de l'utilisateur au contexte de la requête
-		event.context.auth = user?.id;
 	} catch (error) {
 		setResponseStatus(event, 401, 'Unauthorized - Error checking token');
 	}
