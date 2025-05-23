@@ -9,13 +9,7 @@ export default defineNuxtConfig({
 		supabaseServiceKey: process.env.SUPABASE_SERVICE_KEY,
 	},
 
-	modules: [
-		'@pinia/nuxt',
-		'@nuxtjs/supabase',
-		'@nuxt/image',
-		'@nuxt/fonts',
-		'@nuxthub/core',
-	],
+	modules: ['@pinia/nuxt', '@nuxtjs/supabase', '@nuxt/image', '@nuxt/fonts'],
 
 	routeRules: {
 		'/dashboard/**': {
@@ -79,5 +73,6 @@ export default defineNuxtConfig({
 		experimental: {
 			openAPI: true,
 		},
+		preset: 'node-server',
 	},
 });
