@@ -269,12 +269,6 @@
 				class="title title--refresh-button"
 				@click="refreshGeneralDatas"
 			>
-				<Icon
-					icon="lucide:refresh-cw"
-					width="20px"
-					class="refresh-icon"
-				/>
-
 				Statistiques générales
 			</h2>
 
@@ -317,6 +311,26 @@
 
 		<section class="tops">
 			<h2 class="title">Top albums</h2>
+
+			<ul class="tops__list">
+				<AlbumSkeleton v-for="f in 10" :key="f" />
+			</ul>
+		</section>
+
+		<section class="tops">
+			<h2 class="title">Top artistes</h2>
+
+			<ul class="tops__list">
+				<ArtistSkeleton v-for="f in 10" :key="f" />
+			</ul>
+		</section>
+
+		<section class="tops">
+			<h2 class="title">Top tracks</h2>
+
+			<ul class="tops__list">
+				<TrackSkeleton v-for="f in 10" :key="f" />
+			</ul>
 		</section>
 	</div>
 
@@ -360,11 +374,6 @@
 
 			&:hover {
 				color: $primary;
-
-				.refresh-icon {
-					animation: rotation 0.5s
-						cubic-bezier(0.6, -0.28, 0.735, 0.045) (1, 0, 0, 1);
-				}
 			}
 		}
 	}
@@ -423,16 +432,13 @@
 		}
 	}
 
-	.empty-dashboard {
-	}
+	.tops {
+		&__list {
+			display: flex;
+			flex-direction: row;
 
-	@keyframes rotation {
-		from {
-			transform: rotate(0deg);
-		}
-
-		to {
-			transform: rotate(360deg);
+			max-width: 100%;
+			overflow-x: scroll;
 		}
 	}
 </style>
