@@ -57,6 +57,14 @@ p {
 	font-size: 1.6rem;
 }
 
+p.small {
+	font-size: 1rem;
+}
+
+p.details {
+	color: c.$details;
+}
+
 p.error {
 	color: c.$error;
 	font-size: 1.2rem;
