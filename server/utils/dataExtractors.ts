@@ -55,7 +55,7 @@ export function extractAlbumsTitlesAndArtistIds(
 	return Array.from(albumsMap.values());
 }
 
-export function extractSongsAssociatedWithAlbumsAndArtists(
+export function extractTracksAssociatedWithAlbumsAndArtists(
 	file: FileDatas[],
 	artistsMap: Map<number, string>,
 	albumsMap: Map<string, Album>,
@@ -65,7 +65,7 @@ export function extractSongsAssociatedWithAlbumsAndArtists(
 		[...artistsMap.entries()].map(([id, name]) => [name.toLowerCase(), id]),
 	);
 
-	const songsMap = new Map<
+	const tracksMap = new Map<
 		string,
 		{ title: string; albumId: number; isrc: string; artistIds: number[] }
 	>();
@@ -97,33 +97,33 @@ export function extractSongsAssociatedWithAlbumsAndArtists(
 			continue;
 		}
 
-		const songKey = record.isrc;
-		if (!songsMap.has(songKey)) {
-			songsMap.set(songKey, {
-				title: record.songTitle,
+		const trackKey = record.isrc;
+		if (!tracksMap.has(trackKey)) {
+			tracksMap.set(trackKey, {
+				title: record.trackTitle,
 				albumId: album.id,
 				isrc: record.isrc,
 				artistIds: artistIds,
 			});
 		} else {
-			// If the song already exists, add any new artist IDs
-			const existingSong = songsMap.get(songKey)!;
-			const existingArtistIdsSet = new Set(existingSong.artistIds);
+			// If the track already exists, add any new artist IDs
+			const existingTrack = tracksMap.get(trackKey)!;
+			const existingArtistIdsSet = new Set(existingTrack.artistIds);
 
 			// Add any new artist IDs
 			for (const id of artistIds) {
 				existingArtistIdsSet.add(id);
 			}
 
-			existingSong.artistIds = Array.from(existingArtistIdsSet);
+			existingTrack.artistIds = Array.from(existingArtistIdsSet);
 		}
 	}
 
-	return Array.from(songsMap.values());
+	return Array.from(tracksMap.values());
 }
 
 export function extractSortedYearsAvailable(file: FileDatas[]) {
 	return Array.from(
-		new Set(file.map((play) => play.date.getFullYear())),
+		new Set(file.map((stream) => stream.date.getFullYear())),
 	).sort((a, b) => b - a);
 }

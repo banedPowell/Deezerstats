@@ -2,7 +2,7 @@ import type { RawFileDatas, FileDatas } from '~/types';
 
 export function transformRawDataToFileData(rawData: RawFileDatas): FileDatas {
 	return {
-		songTitle: rawData['Song Title'],
+		trackTitle: rawData['Song Title'],
 		artist: rawData.Artist,
 		isrc: rawData.ISRC,
 		albumTitle: rawData['Album Title'],

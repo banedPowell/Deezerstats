@@ -107,13 +107,13 @@
 	onMounted(() => userHasUploadedHistoryFile);
 
 	// Compter les écoutes si l'utilisateur a importé son historique
-	const { data: playsCount } = useAsyncData(
-		'playsCount',
+	const { data: streamsCount } = useAsyncData(
+		'streamsCount',
 		async () => {
 			if (!user.value) return 0;
 
 			const { count } = await supabase
-				.from('plays')
+				.from('streams')
 				.select('*', { count: 'exact', head: true })
 				.eq('user_id', user.value.id);
 
@@ -127,19 +127,21 @@
 	);
 
 	// Calculer le nombre total de secondes écoutes
-	const { data: totalSecondsPlayed } = useAsyncData(
-		'totalSecondsPlayed',
+	const { data: totalSecondsStreamed } = useAsyncData(
+		'totalSecondsStreamed',
 		async () => {
 			if (!user.value) return 0;
 
 			const { data } = await supabase
-				.from('plays')
+				.from('streams')
 				.select('listening_time')
 				.eq('user_id', user.value.id);
 
 			const totalSeconds =
-				data?.reduce((total, play) => total + play.listening_time, 0) ||
-				0;
+				data?.reduce(
+					(total, stream) => total + stream.listening_time,
+					0,
+				) || 0;
 			return totalSeconds;
 		},
 		{
@@ -203,14 +205,17 @@
 		},
 	);
 
-	const { data: totalDistinctsSongsCount } = useAsyncData(
-		'totalDistinctsSongsCount',
+	const { data: totalDistinctsTracksCount } = useAsyncData(
+		'totalDistinctsTracksCount',
 		async () => {
 			if (!user.value) return 0;
 
-			const { data, error } = await supabase.rpc('count_distinct_songs', {
-				user_id_input: user.value.id,
-			});
+			const { data, error } = await supabase.rpc(
+				'count_distinct_tracks',
+				{
+					user_id_input: user.value.id,
+				},
+			);
 
 			if (error) {
 				console.error(
@@ -231,11 +236,11 @@
 
 	const refreshGeneralDatas = () => {
 		refreshNuxtData([
-			'playsCount',
-			'totalSecondsPlayed',
+			'streamsCount',
+			'totalSecondsStreamed',
 			'totalDistinctsArtistsCount',
 			'totalDistinctsAlbumsCount',
-			'totalDistinctsSongsCount',
+			'totalDistinctsTracksCount',
 		]);
 	};
 </script>
@@ -247,7 +252,9 @@
 	>
 		<h1 class="title">
 			Bienvenue
-			<span class="username">{{ user?.user_metadata.display_name }}</span>
+			<span class="username">{{
+				user?.user_metadata.disstream_name
+			}}</span>
 		</h1>
 
 		<section class="data-processing" v-if="fileSent && processingDatas">
@@ -276,12 +283,12 @@
 				<li class="general-stats__list__item">
 					<p class="general-stats__list__label">Nombre d'écoutes</p>
 					<NumberFlow
-						:value="playsCount ?? 0"
+						:value="streamsCount ?? 0"
 						class="general-stats__list__value league-gothic"
 					/>
 				</li>
 
-				<MinutesSwitch :secondsAmount="totalSecondsPlayed ?? 0" />
+				<MinutesSwitch :secondsAmount="totalSecondsStreamed ?? 0" />
 
 				<li class="general-stats__list__item">
 					<p class="general-stats__list__label">Artistes écoutés</p>
@@ -302,7 +309,7 @@
 				<li class="general-stats__list__item">
 					<p class="general-stats__list__label">Morceaux écoutés</p>
 					<NumberFlow
-						:value="totalDistinctsSongsCount ?? 0"
+						:value="totalDistinctsTracksCount ?? 0"
 						class="general-stats__list__value league-gothic"
 					/>
 				</li>
@@ -337,7 +344,9 @@
 	<div v-else class="dashboard empty-dashboard">
 		<h1 class="title">
 			Bienvenue
-			<span class="username">{{ user?.user_metadata.display_name }}</span>
+			<span class="username">{{
+				user?.user_metadata.disstream_name
+			}}</span>
 		</h1>
 
 		<section class="send-file" v-if="!fileSent">

@@ -1,6 +1,6 @@
 import { serverSupabaseServiceRole } from '#supabase/server';
 import { H3Event } from 'h3';
-import type { Database, Album, Song, FileDatas } from '~/types';
+import type { Database, Album, Track, FileDatas } from '~/types';
 
 export const updateProcessingStatus = async ({
 	userId,
@@ -210,9 +210,9 @@ export const batchInsertAlbums = async (
 	return albumsReturned;
 };
 
-export const batchInsertSongs = async (
+export const batchInsertTracks = async (
 	userId: string,
-	songs: Array<{
+	tracks: Array<{
 		title: string;
 		albumId: number;
 		isrc: string;
@@ -227,15 +227,15 @@ export const batchInsertSongs = async (
 	const supabaseClient = supabaseAdmin();
 
 	// on va découper notre traitement en chunks/batchs
-	const chunks = songs.reduce<(typeof songs)[]>((acc, song, index) => {
+	const chunks = tracks.reduce<(typeof tracks)[]>((acc, track, index) => {
 		const chunkIndex = Math.floor(index / chunkSize);
 		if (!acc[chunkIndex]) acc[chunkIndex] = [];
-		acc[chunkIndex].push(song);
+		acc[chunkIndex].push(track);
 		return acc;
 	}, []);
 
 	// Retourner une map ISRC => chanson
-	const songsReturned = new Map<
+	const tracksReturned = new Map<
 		string,
 		{ id: number; title: string; album_id: number; isrc: string }
 	>();
@@ -243,10 +243,10 @@ export const batchInsertSongs = async (
 	// Pour chaque chunk
 	for (const chunk of chunks) {
 		// Filtrer les chansons déjà existantes par ISRC
-		const isrcs = chunk.map((song) => song.isrc);
-		const { data: existingSongs, error: existingError } =
+		const isrcs = chunk.map((track) => track.isrc);
+		const { data: existingTracks, error: existingError } =
 			await supabaseClient
-				.from('songs')
+				.from('tracks')
 				.select('id, title, album_id, isrc')
 				.in('isrc', isrcs);
 
@@ -259,33 +259,38 @@ export const batchInsertSongs = async (
 		}
 
 		// Ajouter les chansons existantes à notre map
-		for (const song of existingSongs || []) {
-			songsReturned.set(song.isrc, song);
+		for (const track of existingTracks || []) {
+			tracksReturned.set(track.isrc, track);
 		}
 
 		// Identifier les nouvelles chansons à insérer
 		const existingIsrcs = new Set(
-			(existingSongs || []).map((song) => song.isrc),
+			(existingTracks || []).map((track) => track.isrc),
 		);
-		const newSongs = chunk.filter((song) => !existingIsrcs.has(song.isrc));
+		const newTracks = chunk.filter(
+			(track) => !existingIsrcs.has(track.isrc),
+		);
 
 		// S'il n'y a pas de nouvelles chansons, passer au chunk suivant
-		if (newSongs.length === 0) continue;
+		if (newTracks.length === 0) continue;
 
-		// Créer une map pour un accès rapide aux originalSongs par ISRC
-		const songsMap = new Map(newSongs.map((song) => [song.isrc, song]));
+		// Créer une map pour un accès rapide aux originalTracks par ISRC
+		const tracksMap = new Map(
+			newTracks.map((track) => [track.isrc, track]),
+		);
 
 		// Insérer les nouvelles chansons
-		const { data: insertedSongs, error: insertError } = await supabaseClient
-			.from('songs')
-			.insert(
-				newSongs.map((song) => ({
-					title: song.title,
-					album_id: song.albumId,
-					isrc: song.isrc,
-				})),
-			)
-			.select('id, title, album_id, isrc');
+		const { data: insertedTracks, error: insertError } =
+			await supabaseClient
+				.from('tracks')
+				.insert(
+					newTracks.map((track) => ({
+						title: track.title,
+						album_id: track.albumId,
+						isrc: track.isrc,
+					})),
+				)
+				.select('id, title, album_id, isrc');
 
 		if (insertError) {
 			console.error(
@@ -296,34 +301,36 @@ export const batchInsertSongs = async (
 		}
 
 		// Ajouter les chansons insérées à notre map de retour
-		for (const song of insertedSongs || []) {
-			songsReturned.set(song.isrc, song);
+		for (const track of insertedTracks || []) {
+			tracksReturned.set(track.isrc, track);
 		}
 
 		// Préparer toutes les relations artiste-chanson en une seule fois
-		const allSongArtistRelations: { song_id: number; artist_id: number }[] =
-			[];
+		const allTrackArtistRelations: {
+			track_id: number;
+			artist_id: number;
+		}[] = [];
 
 		// Maintenant, créons les relations artiste-chanson pour les nouveaux morceaux
-		for (const song of insertedSongs || []) {
+		for (const track of insertedTracks || []) {
 			// Trouver les artistIds correspondants dans notre map par ISRC (O(1) au lieu de O(n))
-			const originalSong = songsMap.get(song.isrc);
-			if (!originalSong) continue;
+			const originalTrack = tracksMap.get(track.isrc);
+			if (!originalTrack) continue;
 
 			// Ajouter les relations à notre collection
-			originalSong.artistIds.forEach((artistId) => {
-				allSongArtistRelations.push({
-					song_id: song.id,
+			originalTrack.artistIds.forEach((artistId) => {
+				allTrackArtistRelations.push({
+					track_id: track.id,
 					artist_id: artistId,
 				});
 			});
 		}
 
 		// Insérer toutes les relations en une seule requête
-		if (allSongArtistRelations.length > 0) {
+		if (allTrackArtistRelations.length > 0) {
 			const { error: relationsError } = await supabaseClient
-				.from('song_artists')
-				.insert(allSongArtistRelations);
+				.from('track_artists')
+				.insert(allTrackArtistRelations);
 
 			if (relationsError) {
 				console.error(
@@ -334,25 +341,25 @@ export const batchInsertSongs = async (
 		}
 	}
 
-	return songsReturned;
+	return tracksReturned;
 };
 
-const computePlayHash = (
+const computeStreamHash = (
 	userId: string,
-	songId: number,
+	trackId: number,
 	listeningTime: number,
 	listeningDate: string,
 	lineIndex: number,
 ): string => {
-	const raw = `${userId}-${songId}-${listeningTime}-${listeningDate}-${lineIndex}`;
+	const raw = `${userId}-${trackId}-${listeningTime}-${listeningDate}-${lineIndex}`;
 
 	return raw;
 };
 
-export const batchInsertPlays = async (
+export const batchInsertStreams = async (
 	userId: string,
 	file: FileDatas[],
-	songsMap: Map<string, Song>,
+	tracksMap: Map<string, Track>,
 	artistsMap: Map<number, string>,
 	albumsMap: Map<string, Album>,
 	chunkSize: number,
@@ -368,9 +375,9 @@ export const batchInsertPlays = async (
 		[...artistsMap.entries()].map(([id, name]) => [name.toLowerCase(), id]),
 	);
 
-	const playsToInsert: {
+	const streamsToInsert: {
 		user_id: string;
-		song_id: number;
+		track_id: number;
 		listening_time: number;
 		listening_date: string;
 		hash: string;
@@ -403,27 +410,27 @@ export const batchInsertPlays = async (
 		}
 
 		// Clé pour la chanson
-		const song = songsMap.get(record.isrc);
+		const track = tracksMap.get(record.isrc);
 
-		if (!song) {
+		if (!track) {
 			console.warn(
-				`Chanson introuvable : "${record.songTitle}" (isrc: ${record.isrc})`,
+				`Chanson introuvable : "${record.trackTitle}" (isrc: ${record.isrc})`,
 			);
 			continue;
 		}
 
-		// Préparer l'entrée play
-		const hash = computePlayHash(
+		// Préparer l'entrée stream
+		const hash = computeStreamHash(
 			userId,
-			song.id,
+			track.id,
 			record.listeningTime,
 			record.date.toISOString(),
 			index,
 		);
 
-		playsToInsert.push({
+		streamsToInsert.push({
 			user_id: userId,
-			song_id: song.id,
+			track_id: track.id,
 			listening_time: record.listeningTime,
 			listening_date: record.date.toISOString(),
 			hash,
@@ -431,11 +438,11 @@ export const batchInsertPlays = async (
 	}
 
 	// Insertion en batch
-	const chunks = playsToInsert.reduce<(typeof playsToInsert)[]>(
-		(acc, play, index) => {
+	const chunks = streamsToInsert.reduce<(typeof streamsToInsert)[]>(
+		(acc, stream, index) => {
 			const chunkIndex = Math.floor(index / chunkSize);
 			if (!acc[chunkIndex]) acc[chunkIndex] = [];
-			acc[chunkIndex].push(play);
+			acc[chunkIndex].push(stream);
 			return acc;
 		},
 		[],
@@ -443,7 +450,7 @@ export const batchInsertPlays = async (
 
 	for (const chunk of chunks) {
 		const { error } = await supabaseClient
-			.from('plays')
+			.from('streams')
 			.upsert(chunk, { onConflict: 'hash' });
 
 		if (error) {
@@ -451,7 +458,7 @@ export const batchInsertPlays = async (
 		}
 	}
 
-	return { inserted: playsToInsert.length };
+	return { inserted: streamsToInsert.length };
 };
 
 export const updateUploadFileInformations = async (

@@ -64,14 +64,14 @@ export const processListeningHistoryDatas = async (
 			},
 		});
 
-		const songs = extractSongsAssociatedWithAlbumsAndArtists(
+		const tracks = extractTracksAssociatedWithAlbumsAndArtists(
 			file,
 			artistsMap,
 			albumsAndArtistsId,
 			separators,
 		);
 
-		const songsMap = await batchInsertSongs(userId, songs, 400);
+		const tracksMap = await batchInsertTracks(userId, tracks, 400);
 
 		await updateProcessingStatus({
 			userId,
@@ -83,10 +83,10 @@ export const processListeningHistoryDatas = async (
 			},
 		});
 
-		await batchInsertPlays(
+		await batchInsertStreams(
 			userId,
 			file,
-			songsMap,
+			tracksMap,
 			artistsMap,
 			albumsAndArtistsId,
 			500,

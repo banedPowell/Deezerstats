@@ -13,7 +13,7 @@ export interface RawFileDatas {
 }
 
 export interface FileDatas {
-	songTitle: string;
+	trackTitle: string;
 	artist: string;
 	isrc: string;
 	albumTitle: string;
@@ -30,7 +30,7 @@ export interface Album {
 	artist_id: number;
 }
 
-export interface Song {
+export interface Track {
 	id: number;
 	title: string;
 	album_id: number;
