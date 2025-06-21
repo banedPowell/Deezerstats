@@ -243,6 +243,8 @@
 			'totalDistinctsTracksCount',
 		]);
 	};
+
+	const { albumsStats } = await useAlbumsStats(user.value?.id);
 </script>
 
 <template>
@@ -252,9 +254,7 @@
 	>
 		<h1 class="title">
 			Bienvenue
-			<span class="username">{{
-				user?.user_metadata.disstream_name
-			}}</span>
+			<span class="username">{{ user?.user_metadata.display_name }}</span>
 		</h1>
 
 		<section class="data-processing" v-if="fileSent && processingDatas">
@@ -320,7 +320,13 @@
 			<h2 class="title">Top albums</h2>
 
 			<ul class="tops__list">
-				<AlbumSkeleton v-for="f in 10" :key="f" />
+				<AlbumItemListVue
+					v-if="albumsStats"
+					v-for="album in albumsStats"
+					:data="album"
+				/>
+
+				<AlbumSkeleton v-else v-for="f in 10" :key="f" />
 			</ul>
 		</section>
 
@@ -447,6 +453,7 @@
 			flex-direction: row;
 
 			max-width: 100%;
+			// height: fit-content;
 			overflow-x: scroll;
 		}
 	}
