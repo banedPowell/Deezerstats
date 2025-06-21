@@ -312,12 +312,30 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
-      get_top_artists_by_user: {
+      get_albums_stats_by_user: {
         Args: {
           p_user_id: string
           p_order_by?: string
           p_order?: string
           p_limit?: number
+          p_page?: number
+        }
+        Returns: {
+          album_id: number
+          album_title: string
+          artist_id: number
+          artist_name: string
+          total_listening_time: number
+          total_streams: number
+        }[]
+      }
+      get_artists_stats_by_user: {
+        Args: {
+          p_user_id: string
+          p_order_by?: string
+          p_order?: string
+          p_limit?: number
+          p_page?: number
         }
         Returns: {
           artist_id: number
@@ -326,19 +344,20 @@ export type Database = {
           total_listening_time: number
         }[]
       }
-      get_top_tracks_by_user: {
+      get_tracks_stats_by_user: {
         Args: {
           p_user_id: string
           p_order_by?: string
           p_order?: string
           p_limit?: number
+          p_page?: number
         }
         Returns: {
           track_id: number
-          track_name: string
           track_isrc: string
-          artist_name: string
+          track_name: string
           artist_id: string
+          artist_names: string
           total_streams: number
           total_listening_time: number
         }[]

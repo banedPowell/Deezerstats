@@ -23,7 +23,7 @@ export const useTracksStats = async (
 		'tracksStats',
 		async () => {
 			const { data, error: supabaseError } = await supabase.rpc(
-				'get_top_tracks_by_user',
+				'get_tracks_stats_by_user',
 				{
 					p_user_id: userId,
 					p_order_by: orderBy,

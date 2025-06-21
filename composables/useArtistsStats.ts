@@ -23,7 +23,7 @@ export const useArtistsStats = async (
 		'artistsStats',
 		async () => {
 			const { data, error: supabaseError } = await supabase.rpc(
-				'get_top_artists_by_user',
+				'get_artists_stats_by_user',
 				{
 					p_user_id: userId,
 					p_order_by: orderBy,
