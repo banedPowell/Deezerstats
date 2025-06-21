@@ -54,9 +54,11 @@
 			border-radius: 5px;
 			animation: pulse 2s infinite;
 		}
-		&__release-date,
 		&__artist-name {
 			width: 63px;
+		}
+		&__release-date {
+			width: 85px;
 		}
 	}
 

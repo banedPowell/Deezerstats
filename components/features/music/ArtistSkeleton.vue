@@ -5,7 +5,6 @@
 		<div class="album__illustration" />
 		<div class="album__title" />
 		<div class="album__artist-name" />
-		<div class="album__release-date" />
 		<div class="album__stats" />
 	</li>
 </template>
