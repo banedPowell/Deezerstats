@@ -106,7 +106,6 @@
 
 	onMounted(() => userHasUploadedHistoryFile);
 
-	// Compter les écoutes si l'utilisateur a importé son historique
 	const { data: streamsCount } = useAsyncData(
 		'streamsCount',
 		async () => {
@@ -120,7 +119,6 @@
 			return count;
 		},
 		{
-			// Ne pas exécuter la requête si l'utilisateur n'a pas importé d'historique
 			watch: [historyData],
 			default: () => 0,
 		},

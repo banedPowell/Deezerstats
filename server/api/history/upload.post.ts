@@ -21,7 +21,6 @@ export default defineEventHandler(async (event) => {
 	// });
 	await processListeningHistoryDatas(rawFile, userId);
 
-	// Réponse immédiate
 	setResponseStatus(event, 200, 'Fichier téléchargé avec succès !');
 	return 'Fichier téléchargé avec succès !';
 });
