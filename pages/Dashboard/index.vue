@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 	import NumberFlow from '@number-flow/vue';
-	import { Icon } from '@iconify/vue';
 
 	import type {
 		Database,
@@ -62,7 +61,7 @@
 		return 'waiting';
 	};
 
-	const channels = supabase
+	const channels = (supabase as any)
 		.channel('custom-all-channel')
 		.on(
 			'postgres_changes',
@@ -241,8 +240,6 @@
 			'totalDistinctsTracksCount',
 		]);
 	};
-
-	const { albumsStats } = await useAlbumsStats(user.value?.id);
 </script>
 
 <template>
@@ -317,31 +314,43 @@
 		<section class="tops">
 			<h2 class="title">Top albums</h2>
 
-			<ul class="tops__list">
-				<AlbumItemListVue
-					v-if="albumsStats"
-					v-for="album in albumsStats"
-					:data="album"
-				/>
+			<Suspense>
+				<AlbumsList />
 
-				<AlbumSkeleton v-else v-for="f in 10" :key="f" />
-			</ul>
+				<template #fallback>
+					<ul class="flex flex-row overflow-x-scroll">
+						<AlbumSkeleton v-for="f in 10" :key="f" />
+					</ul>
+				</template>
+			</Suspense>
 		</section>
 
 		<section class="tops">
 			<h2 class="title">Top artistes</h2>
 
-			<ul class="tops__list">
-				<ArtistSkeleton v-for="f in 10" :key="f" />
-			</ul>
+			<Suspense>
+				<ArtistsList />
+
+				<template #fallback>
+					<ul class="flex flex-row overflow-x-scroll">
+						<ArtistSkeleton v-for="f in 10" :key="f" />
+					</ul>
+				</template>
+			</Suspense>
 		</section>
 
 		<section class="tops">
 			<h2 class="title">Top tracks</h2>
 
-			<ul class="tops__list">
-				<TrackSkeleton v-for="f in 10" :key="f" />
-			</ul>
+			<Suspense>
+				<TracksList />
+
+				<template #fallback>
+					<ul class="flex flex-row overflow-x-scroll">
+						<TrackSkeleton v-for="f in 10" :key="f" />
+					</ul>
+				</template>
+			</Suspense>
 		</section>
 	</div>
 
@@ -442,17 +451,6 @@
 			&__value {
 				font-size: 6.4rem;
 			}
-		}
-	}
-
-	.tops {
-		&__list {
-			display: flex;
-			flex-direction: row;
-
-			max-width: 100%;
-			// height: fit-content;
-			overflow-x: scroll;
 		}
 	}
 </style>
