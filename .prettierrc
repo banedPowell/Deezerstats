@@ -1,7 +1,8 @@
 {
-  "useTabs": true,
-  "vueIndentScriptAndStyle": true,
-  "singleQuote": true,
-  "enableDebugLogs": true,
-  "tabWidth": 4
+	"useTabs": true,
+	"vueIndentScriptAndStyle": true,
+	"singleQuote": true,
+	"enableDebugLogs": true,
+	"tabWidth": 4,
+	"plugins": ["prettier-plugin-tailwindcss"]
 }
