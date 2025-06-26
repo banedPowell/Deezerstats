@@ -18,7 +18,7 @@ export interface TracksStatsDatas {
 	track_id: number;
 	track_isrc: string;
 	track_name: string;
-	artist_id: number[];
+	artist_ids: number[];
 	artist_names: string[];
 	total_streams: number;
 	total_listening_time: number;

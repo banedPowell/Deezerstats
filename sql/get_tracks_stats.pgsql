@@ -8,8 +8,8 @@ CREATE OR REPLACE FUNCTION get_tracks_stats_by_user(
 		track_id bigint,
 		track_isrc text,
 		track_name text,
-		artist_id text,
-		artist_names text,
+		artist_ids bigint [],
+		artist_names text [],
 		total_streams bigint,
 		total_listening_time bigint
 	) AS $$
@@ -35,14 +35,14 @@ RETURN QUERY EXECUTE format(
 	SELECT t.id AS track_id,
 		t.isrc AS track_isrc,
 		t.title AS track_name,
-		STRING_AGG(DISTINCT a.id::text, ', ') AS artist_id,
-		STRING_AGG(DISTINCT a.name, ', ') AS artist_names,
+		ARRAY_AGG(DISTINCT a.id::bigint) AS artist_ids,
+		ARRAY_AGG(DISTINCT a.name) AS artist_names,
 		tl.total_streams,
 		tl.total_listening_time
 	FROM track_listening tl
 		JOIN tracks t ON tl.track_id = t.id
-		LEFT JOIN track_artists sa ON t.id = sa.track_id
-		LEFT JOIN artists a ON sa.artist_id = a.id
+		LEFT JOIN track_artists ta ON t.id = ta.track_id
+		LEFT JOIN artists a ON ta.artist_id = a.id
 	GROUP BY t.id,
 		t.title,
 		t.isrc,

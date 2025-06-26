@@ -356,8 +356,8 @@ export type Database = {
           track_id: number
           track_isrc: string
           track_name: string
-          artist_id: string
-          artist_names: string
+          artist_ids: number[]
+          artist_names: string[]
           total_streams: number
           total_listening_time: number
         }[]
