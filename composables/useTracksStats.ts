@@ -1,5 +1,3 @@
-import { ref } from 'vue';
-import { useSupabaseClient } from '#imports';
 import type { Database } from '~/types';
 
 export const useTracksStats = async (
@@ -10,18 +8,15 @@ export const useTracksStats = async (
 	page: number = 1,
 ) => {
 	const supabase = useSupabaseClient<Database>();
+	const key = `tracksStats:${userId}:${orderBy}:${order}:${limit}:${page}`;
 
-	const tracksStats = ref<any[]>([]);
-	const error = ref<string | null>(null);
-
-	if (!userId) {
-		error.value = "L'utilisateur n'est pas connecté";
-		return { tracksStats, error };
-	}
-
-	useAsyncData(
-		'tracksStats',
+	const { data: tracksStats, error } = await useAsyncData(
+		key,
 		async () => {
+			if (!userId) {
+				return [];
+			}
+
 			const { data, error: supabaseError } = await supabase.rpc(
 				'get_tracks_stats_by_user',
 				{
@@ -32,18 +27,17 @@ export const useTracksStats = async (
 					p_page: page,
 				},
 			);
+
 			if (supabaseError) {
-				error.value = 'Erreur lors de la récupération des données';
-				return [];
+				throw new Error(
+					'Erreur lors de la récupération des statistiques des tracks.',
+				);
 			}
+
 			return data ?? [];
 		},
 		{
 			default: () => [],
-			transform: (data) => {
-				tracksStats.value = data;
-				return data;
-			},
 		},
 	);
 

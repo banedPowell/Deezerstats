@@ -1,5 +1,3 @@
-import { ref } from 'vue';
-import { useSupabaseClient } from '#imports';
 import type { Database } from '~/types';
 
 export const useArtistsStats = async (
@@ -10,18 +8,15 @@ export const useArtistsStats = async (
 	page: number = 1,
 ) => {
 	const supabase = useSupabaseClient<Database>();
+	const key = `artistsStats:${userId}:${orderBy}:${order}:${limit}:${page}`;
 
-	const artistsStats = ref<any[]>([]);
-	const error = ref<string | null>(null);
-
-	if (!userId) {
-		error.value = "L'utilisateur n'est pas connecté";
-		return { artistsStats, error };
-	}
-
-	useAsyncData(
-		'artistsStats',
+	const { data: artistsStats, error } = await useAsyncData(
+		key,
 		async () => {
+			if (!userId) {
+				return [];
+			}
+
 			const { data, error: supabaseError } = await supabase.rpc(
 				'get_artists_stats_by_user',
 				{
@@ -32,18 +27,17 @@ export const useArtistsStats = async (
 					p_page: page,
 				},
 			);
+
 			if (supabaseError) {
-				error.value = 'Erreur lors de la récupération des données';
-				return [];
+				throw new Error(
+					'Erreur lors de la récupération des statistiques des artistes.',
+				);
 			}
+
 			return data ?? [];
 		},
 		{
 			default: () => [],
-			transform: (data) => {
-				artistsStats.value = data;
-				return data;
-			},
 		},
 	);
 
