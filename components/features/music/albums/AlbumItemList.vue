@@ -1,8 +1,9 @@
 <script lang="ts" setup>
-	import type { TopAlbumDatas } from '~/types';
+	import type { AlbumsStatsDatas } from '~/types';
+
 	import { Icon } from '@iconify/vue';
 
-	const props = defineProps<{ data: TopAlbumDatas }>();
+	const props = defineProps<{ data: AlbumsStatsDatas }>();
 </script>
 
 <template>

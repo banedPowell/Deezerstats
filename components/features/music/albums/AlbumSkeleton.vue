@@ -5,6 +5,7 @@
 		<div class="album__illustration" />
 		<div class="album__title" />
 		<div class="album__artist-name" />
+		<div class="album__release-date" />
 		<div class="album__stats" />
 	</li>
 </template>
@@ -32,7 +33,7 @@
 			aspect-ratio: 1;
 			width: 180px;
 
-			border-radius: 100%;
+			border-radius: 5px;
 			animation: pulse 2s infinite;
 		}
 
@@ -53,21 +54,11 @@
 			border-radius: 5px;
 			animation: pulse 2s infinite;
 		}
-		&__release-date,
 		&__artist-name {
 			width: 63px;
 		}
-	}
-
-	@keyframes pulse {
-		0% {
-			background: #252525;
-		}
-		70% {
-			background: #171717;
-		}
-		100% {
-			background: #252525;
+		&__release-date {
+			width: 85px;
 		}
 	}
 </style>

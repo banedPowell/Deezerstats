@@ -1,19 +1,19 @@
 <script setup lang="ts"></script>
 
 <template>
-	<li class="album">
-		<div class="album__illustration" />
-		<div class="album__title" />
-		<div class="album__artist-name" />
-		<div class="album__release-date" />
-		<div class="album__stats" />
+	<li class="track">
+		<div class="track__illustration" />
+		<div class="track__title" />
+		<div class="track__artist-name" />
+		<div class="track__release-date" />
+		<div class="track__stats" />
 	</li>
 </template>
 
 <style lang="scss" scoped>
 	@use 'sass:color';
 
-	.album {
+	.track {
 		display: flex;
 		flex-direction: column;
 		gap: 10px;
@@ -59,18 +59,6 @@
 		}
 		&__release-date {
 			width: 85px;
-		}
-	}
-
-	@keyframes pulse {
-		0% {
-			background: #252525;
-		}
-		70% {
-			background: #171717;
-		}
-		100% {
-			background: #252525;
 		}
 	}
 </style>
