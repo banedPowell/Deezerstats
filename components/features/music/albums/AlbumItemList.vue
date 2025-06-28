@@ -78,16 +78,4 @@
 			gap: 5px;
 		}
 	}
-
-	@keyframes pulse {
-		0% {
-			background: #252525;
-		}
-		70% {
-			background: #171717;
-		}
-		100% {
-			background: #252525;
-		}
-	}
 </style>

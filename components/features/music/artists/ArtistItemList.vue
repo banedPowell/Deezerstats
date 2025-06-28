@@ -55,7 +55,7 @@
 			aspect-ratio: 1;
 			width: 180px;
 
-			border-radius: 5px;
+			border-radius: 100%;
 			animation: pulse 2s infinite;
 		}
 
@@ -73,18 +73,6 @@
 			flex-direction: row;
 			align-items: center;
 			gap: 5px;
-		}
-	}
-
-	@keyframes pulse {
-		0% {
-			background: #252525;
-		}
-		70% {
-			background: #171717;
-		}
-		100% {
-			background: #252525;
 		}
 	}
 </style>
