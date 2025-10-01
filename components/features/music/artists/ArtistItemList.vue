@@ -3,11 +3,20 @@
 	import { Icon } from '@iconify/vue';
 
 	const props = defineProps<{ data: ArtistsStatsDatas }>();
+	const artistName = props.data.artist_name.replace(/\s+/g, '-');
+
+	const { data: artistDatas } = await useAsyncData(
+		`artistDatas:${artistName}`,
+		() => $fetch(`/api/deezer/artist/${artistName}`),
+	);
+
+	const pictureSrc = artistDatas.value?.picture_big;
+	console.log('pictureSrc', pictureSrc);
 </script>
 
 <template>
 	<li class="artist">
-		<div class="artist__illustration"></div>
+		<NuxtImg class="artist__illustration" :src="pictureSrc" />
 
 		<p class="artist__title">{{ data.artist_name }}</p>
 
@@ -32,28 +41,31 @@
 		display: flex;
 		flex-direction: column;
 		gap: 10px;
+		flex-shrink: 0;
 
 		padding: 10px;
 		border-radius: 15px;
 
 		width: fit-content;
 		height: fit-content;
-
-		color: $text;
+		cursor: pointer;
 
 		&:hover {
 			background: color.scale($color: $bg, $lightness: 2%);
 		}
 
-		&__infos {
-			display: flex;
-			flex-direction: column;
-			gap: 5px;
+		&__illustration {
+			aspect-ratio: 1;
+			width: 180px;
+
+			border-radius: 100%;
+			animation: pulse 2s infinite;
 		}
 
 		&__illustration {
 			aspect-ratio: 1;
 			width: 180px;
+			object-fit: cover;
 
 			border-radius: 100%;
 			animation: pulse 2s infinite;
