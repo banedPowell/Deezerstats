@@ -1,5 +1,5 @@
 type ShortTrack = {
-	id: string;
+	id: number;
 	readable: true;
 	title: string;
 	title_short: string;
@@ -25,6 +25,22 @@ type SearchTrack = ShortTrack & {
 	album: ShortAlbum;
 };
 
+export type FullTrack = SearchTrack & {
+	isrc: string;
+	share: string;
+	duration: number;
+	track_position: number;
+	disk_number: number;
+	release_date: string;
+	bpm: number;
+	gain: number;
+	available_countries: string[];
+	track_token: string;
+	contributors: Contributor[];
+	artist: ArtistFromFullTrack;
+	album: AlbumFromFullTrack;
+};
+
 type ShortAlbum = {
 	id: number;
 	title: string;
@@ -45,6 +61,11 @@ export type SearchAlbum = ShortAlbum & {
 	record_type: string;
 	explicit_lyrics: boolean;
 	artist: MediumArtist;
+};
+
+type AlbumFromFullTrack = ShortAlbum & {
+	link: string;
+	release_date: string;
 };
 
 export type FullAlbum = SearchAlbum & {
@@ -87,6 +108,11 @@ type MediumArtist = ShortArtist & {
 	picture_medium: string;
 	picture_big: string;
 	picture_xl: string;
+};
+
+type ArtistFromFullTrack = MediumArtist & {
+	link: string;
+	radio: boolean;
 };
 
 export type SearchArtist = MediumArtist & {
@@ -133,7 +159,7 @@ export const getAlbumDeezerId = async (
 	artistName: string,
 ) => {
 	const datas = await $fetch<{ data: SearchAlbum[] }>(
-		`https://api.deezer.com/search/album?q=${albumTitle}`,
+		`https://api.deezer.com/search/album?q=${albumTitle}-${artistName}`,
 	);
 
 	let albumId = null;
@@ -158,6 +184,47 @@ export const getAlbumDeezerId = async (
 export const getFullAlbumDeezerDatas = async (albumId: number) => {
 	const datas = await $fetch<FullAlbum>(
 		`https://api.deezer.com/album/${albumId}`,
+	);
+
+	return datas;
+};
+
+export const getTrackDeezerId = async (
+	trackTitle: string,
+	artistName: string,
+) => {
+	let trackId = null;
+
+	try {
+		const datas = await $fetch<{ data: SearchTrack[] }>(
+			`https://api.deezer.com/search/track?q=${trackTitle}-${artistName}`,
+		);
+
+		for (const track of datas.data) {
+			if (
+				track.title.toLowerCase() === trackTitle.replace(/-/g, ' ') &&
+				track.artist.name.toLowerCase() ===
+					artistName.replace(/-/g, ' ')
+			) {
+				trackId = track.id;
+				break;
+			}
+		}
+	} catch (error) {
+		console.error('Deezer API error:', error);
+		throw createError({
+			statusCode: 500,
+			statusMessage: 'Failed to fetch data from Deezer API',
+		});
+	}
+
+	return trackId;
+};
+
+export const getFullTrackDeezerDatas = async (trackId: number) => {
+	console.log('id : ', trackId);
+	const datas = await $fetch<FullTrack>(
+		`https://api.deezer.com/track/${trackId}`,
 	);
 
 	return datas;
