@@ -1,28 +1,32 @@
-export type DeezerSearchDatas = {
-	data: DeezerTrackDatas[];
-};
-
-export type DeezerTrackDatas = {
+type ShortTrack = {
 	id: string;
-	readable: boolean;
+	readable: true;
 	title: string;
 	title_short: string;
 	title_version: string;
 	link: string;
-	duration: string;
-	rank: string;
-	explicit_lyrics: boolean;
+	duration: number;
+	rank: number;
+	explicit_lyrics: true;
 	explicit_content_lyrics: number;
 	explicit_content_cover: number;
 	preview: string;
 	md5_image: string;
 	type: 'track';
-	artist: DeezerArtistDatas;
-	album: DeezerAlbumDatas;
 };
 
-export type DeezerAlbumDatas = {
-	id: string;
+type TrackFromFullAlbum = ShortTrack & {
+	artist: ShortArtist;
+	album: ShortAlbum;
+};
+
+type SearchTrack = ShortTrack & {
+	artist: MediumArtist;
+	album: ShortAlbum;
+};
+
+type ShortAlbum = {
+	id: number;
 	title: string;
 	cover: string;
 	cover_small: string;
@@ -30,32 +34,88 @@ export type DeezerAlbumDatas = {
 	cover_big: string;
 	cover_xl: string;
 	md5_image: string;
-	tracklist: boolean;
+	tracklist: string;
 	type: 'album';
 };
 
-export type DeezerArtistDatas = {
+export type SearchAlbum = ShortAlbum & {
+	link: string;
+	genre_id: number;
+	nb_tracks: number;
+	record_type: string;
+	explicit_lyrics: boolean;
+	artist: MediumArtist;
+};
+
+export type FullAlbum = SearchAlbum & {
+	fans: number;
+	release_date: string;
+	available: boolean;
+	explicit_content_lyrics: number;
+	explicit_content_cover: number;
+	duration: number;
+	label: string;
+	share: string;
+	upc: string;
+	contributors: Contributor[];
+	artist: MediumArtist;
+	tracks: {
+		data: TrackFromFullAlbum[];
+	};
+	genres: {
+		data: Genre[];
+	};
+};
+
+export type Genre = {
 	id: number;
 	name: string;
-	link: string;
+	picture: string;
+	type: 'genre';
+};
+
+type ShortArtist = {
+	id: number;
+	name: string;
+	tracklist: string;
+	type: 'artist';
+};
+
+type MediumArtist = ShortArtist & {
 	picture: string;
 	picture_small: string;
 	picture_medium: string;
 	picture_big: string;
 	picture_xl: string;
-	tracklist: boolean;
-	type: 'artist';
+};
+
+export type SearchArtist = MediumArtist & {
+	link: string;
+	nb_album: number;
+	nb_fan: number;
+	radio: boolean;
+};
+
+export type FullArtist = SearchArtist & {
+	share: string;
+};
+
+type Contributor = MediumArtist & {
+	link: string;
+	share: string;
+	radio: boolean;
+	role: string;
 };
 
 export const getArtistDeezerDatas = async (artistName: string) => {
-	const datas = await $fetch<{ data: DeezerArtistDatas[] }>(
+	const datas = await $fetch<{ data: SearchArtist[] }>(
 		`https://api.deezer.com/search/artist?q=${artistName}`,
 	);
 
-	let artistDatas: DeezerArtistDatas | null = null;
+	let artistDatas = null;
 
 	for (const artist of datas.data) {
-		if (artist.name === artistName.replace(/-/g, ' ')) {
+		if (artist.name.toLowerCase() === artistName.replace(/-/g, ' ')) {
 			artistDatas = artist;
 			break;
 		} else {
@@ -66,4 +126,39 @@ export const getArtistDeezerDatas = async (artistName: string) => {
 	}
 
 	return artistDatas;
+};
+
+export const getAlbumDeezerId = async (
+	albumTitle: string,
+	artistName: string,
+) => {
+	const datas = await $fetch<{ data: SearchAlbum[] }>(
+		`https://api.deezer.com/search/album?q=${albumTitle}`,
+	);
+
+	let albumId = null;
+
+	for (const album of datas.data) {
+		if (
+			album.title.toLowerCase() === albumTitle.replace(/-/g, ' ') &&
+			album.artist.name.toLowerCase() === artistName.replace(/-/g, ' ')
+		) {
+			albumId = album.id;
+			break;
+		} else {
+			console.log(
+				`albumId not found for : ${albumTitle} != ${album.title} or artistName not found : ${artistName} != ${album.artist.name}`,
+			);
+		}
+	}
+
+	return albumId;
+};
+
+export const getFullAlbumDeezerDatas = async (albumId: number) => {
+	const datas = await $fetch<FullAlbum>(
+		`https://api.deezer.com/album/${albumId}`,
+	);
+
+	return datas;
 };

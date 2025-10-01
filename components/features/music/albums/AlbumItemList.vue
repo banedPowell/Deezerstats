@@ -4,17 +4,37 @@
 	import { Icon } from '@iconify/vue';
 
 	const props = defineProps<{ data: AlbumsStatsDatas }>();
+	const albumTitle = props.data.album_title
+		.replace(/\s+/g, '-')
+		.toLowerCase();
+
+	const artistName = props.data.artist_name
+		.replace(/\s+/g, '-')
+		.toLowerCase();
+
+	const { data: albumDatas } = await useAsyncData(
+		`artistDatas:${albumTitle}`,
+		() =>
+			$fetch(
+				`/api/deezer/album?title=${albumTitle}&artist=${artistName}`,
+			),
+	);
+
+	const coverSrc = albumDatas.value?.cover_big;
 </script>
 
 <template>
 	<li class="album">
-		<div class="album__illustration"></div>
+		<nuxtImg class="album__illustration" :src="coverSrc" />
 
 		<p class="album__title">{{ data.album_title }}</p>
 
 		<p class="album__artist-name">{{ data.artist_name }}</p>
 		<div class="album__infos">
-			<p class="album__release-date small details">Sorti le 10/10/2002</p>
+			<p class="album__release-date small details">
+				Sorti le
+				{{ albumDatas?.release_date.split('-').reverse().join('/') }}
+			</p>
 			<div class="album__stats">
 				<p class="small">{{ data.total_streams }} streams</p>
 
@@ -43,6 +63,7 @@
 		height: fit-content;
 
 		color: $text;
+		flex-shrink: 0;
 
 		&:hover {
 			background: color.scale($color: $bg, $lightness: 2%);

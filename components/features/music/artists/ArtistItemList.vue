@@ -3,15 +3,16 @@
 	import { Icon } from '@iconify/vue';
 
 	const props = defineProps<{ data: ArtistsStatsDatas }>();
-	const artistName = props.data.artist_name.replace(/\s+/g, '-');
+	const artistName = props.data.artist_name
+		.replace(/\s+/g, '-')
+		.toLowerCase();
 
 	const { data: artistDatas } = await useAsyncData(
 		`artistDatas:${artistName}`,
-		() => $fetch(`/api/deezer/artist/${artistName}`),
+		() => $fetch(`/api/deezer/artist?name=${artistName}`),
 	);
 
 	const pictureSrc = artistDatas.value?.picture_big;
-	console.log('pictureSrc', pictureSrc);
 </script>
 
 <template>

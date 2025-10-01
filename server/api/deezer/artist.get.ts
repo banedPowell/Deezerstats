@@ -1,14 +1,14 @@
 export default defineEventHandler(async (event) => {
-	const name = getRouterParam(event, 'name');
+	const query = getQuery(event);
 
-	if (!name) {
+	const artistName = query.name as string;
+
+	if (!artistName) {
 		throw createError({
 			statusCode: 400,
-			statusMessage: 'Name parameter is required',
+			statusMessage: 'Artist name parameter is required',
 		});
 	}
-
-	const artistName = name;
 
 	try {
 		const artistDatas = await getArtistDeezerDatas(artistName);
