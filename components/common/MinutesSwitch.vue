@@ -33,8 +33,8 @@
 </script>
 
 <template>
-	<li class="minutes-switch">
-		<p class="minutes-switch__label" @click="switchLabel">
+	<li class="minutes-switch" @click="switchLabel">
+		<p class="minutes-switch__label">
 			<Icon icon="mi:switch" :ssr="true" />
 
 			{{ label }} d'écoute
@@ -53,6 +53,13 @@
 		flex-direction: column;
 
 		padding: 10px;
+		cursor: pointer;
+		user-select: none;
+
+		transition: color 0.1s ease-in-out;
+		&:hover {
+			color: $primary;
+		}
 
 		&__label {
 			display: flex;
@@ -60,15 +67,6 @@
 			gap: 5px;
 
 			font-size: 1.5rem;
-
-			cursor: pointer;
-			user-select: none;
-
-			transition: color 0.1s ease-in-out;
-
-			&:hover {
-				color: $primary;
-			}
 		}
 
 		&__value {
