@@ -140,15 +140,18 @@ export const getArtistDeezerDatas = async (artistName: string) => {
 
 	let artistDatas = null;
 
-	for (const artist of datas.data) {
-		if (artist.name.toLowerCase() === artistName.replace(/-/g, ' ')) {
-			artistDatas = artist;
-			break;
-		} else {
-			console.log(
-				`artistName not found : ${artistName} != ${artist.name}`,
-			);
+	try {
+		for (const artist of datas.data) {
+			if (artist.name.toLowerCase() === artistName.replace(/-/g, ' ')) {
+				artistDatas = artist;
+				break;
+			}
 		}
+	} catch (error) {
+		throw createError({
+			statusCode: 500,
+			statusMessage: 'Failed to fetch data from Deezer API',
+		});
 	}
 
 	return artistDatas;
@@ -164,18 +167,22 @@ export const getAlbumDeezerId = async (
 
 	let albumId = null;
 
-	for (const album of datas.data) {
-		if (
-			album.title.toLowerCase() === albumTitle.replace(/-/g, ' ') &&
-			album.artist.name.toLowerCase() === artistName.replace(/-/g, ' ')
-		) {
-			albumId = album.id;
-			break;
-		} else {
-			console.log(
-				`albumId not found for : ${albumTitle} != ${album.title} or artistName not found : ${artistName} != ${album.artist.name}`,
-			);
+	try {
+		for (const album of datas.data) {
+			if (
+				album.title.toLowerCase() === albumTitle.replace(/-/g, ' ') &&
+				album.artist.name.toLowerCase() ===
+					artistName.replace(/-/g, ' ')
+			) {
+				albumId = album.id;
+				break;
+			}
 		}
+	} catch (error) {
+		throw createError({
+			statusCode: 500,
+			statusMessage: 'Failed to fetch data from Deezer API',
+		});
 	}
 
 	return albumId;
@@ -211,7 +218,6 @@ export const getTrackDeezerId = async (
 			}
 		}
 	} catch (error) {
-		console.error('Deezer API error:', error);
 		throw createError({
 			statusCode: 500,
 			statusMessage: 'Failed to fetch data from Deezer API',
@@ -222,7 +228,6 @@ export const getTrackDeezerId = async (
 };
 
 export const getFullTrackDeezerDatas = async (trackId: number) => {
-	console.log('id : ', trackId);
 	const datas = await $fetch<FullTrack>(
 		`https://api.deezer.com/track/${trackId}`,
 	);
