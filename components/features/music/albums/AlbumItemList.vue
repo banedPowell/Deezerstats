@@ -27,7 +27,9 @@
 	<li class="album">
 		<nuxtImg class="album__illustration" :src="coverSrc" />
 
-		<p class="album__title">{{ data.album_title }}</p>
+		<p class="album__title">
+			{{ data.album_title }}
+		</p>
 
 		<p class="album__artist-name">{{ data.artist_name }}</p>
 		<div class="album__infos">
@@ -50,6 +52,7 @@
 
 <style lang="scss" scoped>
 	@use 'sass:color';
+	@use 'assets/styles/screen' as screen;
 
 	.album {
 		display: flex;
@@ -73,6 +76,12 @@
 			display: flex;
 			flex-direction: column;
 			gap: 5px;
+
+			max-width: 180px;
+
+			@media screen and (max-width: screen.$tablet) {
+				max-width: 120px;
+			}
 		}
 
 		&__illustration {
@@ -81,15 +90,37 @@
 
 			border-radius: 5px;
 			animation: pulse 2s infinite;
+
+			@media screen and (max-width: screen.$tablet) {
+				width: 120px;
+			}
 		}
 
 		&__title {
 			font-size: 1.6rem;
 			line-height: 1.3;
+
+			max-width: 180px;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+
+			@media screen and (max-width: screen.$tablet) {
+				max-width: 120px;
+			}
 		}
 
 		&__artist-name {
 			font-size: 1.4rem;
+
+			max-width: 180px;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+
+			@media screen and (max-width: screen.$tablet) {
+				max-width: 120px;
+			}
 		}
 
 		&__stats {

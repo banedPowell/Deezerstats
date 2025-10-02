@@ -48,6 +48,8 @@
 </template>
 
 <style scoped lang="scss">
+	@use 'assets/styles/screen' as screen;
+
 	.minutes-switch {
 		display: flex;
 		flex-direction: column;
@@ -67,10 +69,18 @@
 			gap: 5px;
 
 			font-size: 1.5rem;
+
+			@media screen and (max-width: screen.$mobile-l) {
+				font-size: 1.2rem;
+			}
 		}
 
 		&__value {
 			font-size: 6.4rem;
+
+			@media screen and (max-width: screen.$mobile-l) {
+				font-size: 4.4rem;
+			}
 		}
 	}
 </style>

@@ -12,6 +12,7 @@
 
 <style lang="scss" scoped>
 	@use 'sass:color';
+	@use 'assets/styles/screen' as screen;
 
 	.album {
 		display: flex;
@@ -35,6 +36,10 @@
 
 			border-radius: 5px;
 			animation: pulse 2s infinite;
+
+			@media screen and (max-width: screen.$tablet) {
+				width: 120px;
+			}
 		}
 
 		&__title,

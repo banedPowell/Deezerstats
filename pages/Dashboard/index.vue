@@ -370,6 +370,8 @@
 </template>
 
 <style lang="scss" scoped>
+	@use 'assets/styles/screen' as screen;
+
 	.dashboard {
 		display: flex;
 		flex-direction: column;
@@ -428,27 +430,37 @@
 
 	.general-stats {
 		&__list {
-			display: flex;
-			flex-direction: row;
-			flex-wrap: wrap;
-			gap: 20px 80px;
+			display: grid;
+			grid-template-columns: repeat(3, 1fr);
+			gap: 20px;
 
 			width: 100%;
+
+			@media screen and (max-width: screen.$tablet) {
+				grid-template-columns: repeat(2, 1fr);
+			}
 
 			&__item {
 				display: flex;
 				flex-direction: column;
-				// gap: 10px;
 
 				padding: 10px;
 			}
 
 			&__label {
 				font-size: 1.5rem;
+
+				@media screen and (max-width: screen.$mobile-l) {
+					font-size: 1.2rem;
+				}
 			}
 
 			&__value {
 				font-size: 6.4rem;
+
+				@media screen and (max-width: screen.$mobile-l) {
+					font-size: 4.4rem;
+				}
 			}
 		}
 	}

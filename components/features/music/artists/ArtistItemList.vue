@@ -37,6 +37,7 @@
 
 <style lang="scss" scoped>
 	@use 'sass:color';
+	@use 'assets/styles/screen' as screen;
 
 	.artist {
 		display: flex;
@@ -58,27 +59,29 @@
 		&__illustration {
 			aspect-ratio: 1;
 			width: 180px;
-
-			border-radius: 100%;
-			animation: pulse 2s infinite;
-		}
-
-		&__illustration {
-			aspect-ratio: 1;
-			width: 180px;
 			object-fit: cover;
+			flex-shrink: 0;
 
 			border-radius: 100%;
 			animation: pulse 2s infinite;
+
+			@media screen and (max-width: screen.$tablet) {
+				width: 120px;
+			}
 		}
 
 		&__title {
 			font-size: 1.6rem;
 			line-height: 1.3;
-		}
 
-		&__artist-name {
-			font-size: 1.4rem;
+			max-width: 180px;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+
+			@media screen and (max-width: screen.$tablet) {
+				max-width: 120px;
+			}
 		}
 
 		&__stats {
@@ -86,6 +89,12 @@
 			flex-direction: row;
 			align-items: center;
 			gap: 5px;
+
+			max-width: 180px;
+
+			@media screen and (max-width: screen.$tablet) {
+				max-width: 120px;
+			}
 		}
 	}
 </style>

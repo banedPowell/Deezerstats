@@ -60,6 +60,7 @@
 
 <style lang="scss" scoped>
 	@use 'sass:color';
+	@use 'assets/styles/screen' as screen;
 
 	.track {
 		display: flex;
@@ -83,6 +84,12 @@
 			display: flex;
 			flex-direction: column;
 			gap: 5px;
+
+			max-width: 180px;
+
+			@media screen and (max-width: screen.$tablet) {
+				max-width: 120px;
+			}
 		}
 
 		&__illustration {
@@ -91,11 +98,24 @@
 
 			border-radius: 5px;
 			animation: pulse 2s infinite;
+
+			@media screen and (max-width: screen.$tablet) {
+				width: 120px;
+			}
 		}
 
 		&__title {
 			font-size: 1.6rem;
 			line-height: 1.3;
+
+			max-width: 180px;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+
+			@media screen and (max-width: screen.$tablet) {
+				max-width: 120px;
+			}
 		}
 
 		&__artist-names-list {
@@ -103,10 +123,28 @@
 			flex-direction: row;
 			align-items: center;
 			gap: 5px;
+
+			max-width: 180px;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+
+			@media screen and (max-width: screen.$tablet) {
+				max-width: 120px;
+			}
 		}
 
 		&__artist-names-item {
 			font-size: 1.4rem;
+
+			max-width: 180px;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+
+			@media screen and (max-width: screen.$tablet) {
+				max-width: 120px;
+			}
 		}
 
 		&__stats {
