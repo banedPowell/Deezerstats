@@ -82,7 +82,7 @@
 			processingDatas.value = true;
 		}
 	});
-	// Récupérer les informations d'import de l'utilisateur
+
 	const { data: historyData } = useAsyncData(
 		'userHistory',
 		async () => {
@@ -123,7 +123,6 @@
 		},
 	);
 
-	// Calculer le nombre total de secondes écoutes
 	const { data: totalSecondsStreamed } = useAsyncData(
 		'totalSecondsStreamed',
 		async () => {
@@ -315,7 +314,7 @@
 			<h2 class="title">Top albums</h2>
 
 			<Suspense>
-				<AlbumsList />
+				<AlbumsList :isLoading="processingDatas" />
 
 				<template #fallback>
 					<ul class="flex flex-row overflow-x-scroll">
@@ -329,7 +328,7 @@
 			<h2 class="title">Top artistes</h2>
 
 			<Suspense>
-				<ArtistsList />
+				<ArtistsList :isLoading="processingDatas" />
 
 				<template #fallback>
 					<ul class="flex flex-row overflow-x-scroll">
@@ -343,7 +342,7 @@
 			<h2 class="title">Top tracks</h2>
 
 			<Suspense>
-				<TracksList />
+				<TracksList :isLoading="processingDatas" />
 
 				<template #fallback>
 					<ul class="flex flex-row overflow-x-scroll">

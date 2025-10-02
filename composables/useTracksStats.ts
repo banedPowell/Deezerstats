@@ -2,6 +2,7 @@ import type { Database } from '~/types';
 
 export const useTracksStats = async (
 	userId: string | undefined,
+	isLoading: Ref<boolean>,
 	orderBy: 'listening_time' | 'streams' = 'listening_time',
 	order: 'DESC' | 'ASC' = 'DESC',
 	limit: 1 | 10 | 30 = 10,
@@ -15,6 +16,21 @@ export const useTracksStats = async (
 		async () => {
 			if (!userId) {
 				return [];
+			}
+
+			if (isLoading.value) {
+				await new Promise((resolve) => {
+					const unwatch = watch(
+						isLoading,
+						(newValue) => {
+							if (!newValue) {
+								unwatch();
+								resolve(undefined);
+							}
+						},
+						{ immediate: true },
+					);
+				});
 			}
 
 			const { data, error: supabaseError } = await supabase.rpc(

@@ -1,7 +1,14 @@
 <script lang="ts" setup>
+	const props = defineProps<{
+		isLoading: boolean;
+	}>();
+
 	const user = useSupabaseUser();
 
-	const { albumsStats } = await useAlbumsStats(user.value?.id);
+	const { albumsStats } = await useAlbumsStats(
+		user.value?.id,
+		toRef(props, 'isLoading'),
+	);
 </script>
 
 <template>
