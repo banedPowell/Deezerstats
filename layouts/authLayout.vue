@@ -42,7 +42,7 @@
 		align-items: center;
 
 		min-height: 80vh;
-		margin-top: 30px;
+		margin-top: 100px;
 		padding: 0 20px;
 
 		width: 100%;

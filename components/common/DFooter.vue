@@ -119,7 +119,7 @@
 
 		width: 100%;
 
-		margin-top: 50px;
+		margin-top: 250px;
 		padding: 50px;
 
 		border-top: 1px solid $strokes;

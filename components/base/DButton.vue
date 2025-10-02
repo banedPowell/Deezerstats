@@ -45,6 +45,13 @@
 			font-family: 'Inter', sans-serif;
 			font-size: 1.2rem;
 			font-weight: 500;
+
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			gap: 5px;
+			flex-wrap: nowrap;
+			text-wrap: nowrap;
 		}
 
 		&--large {

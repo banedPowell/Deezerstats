@@ -26,7 +26,7 @@
 		max-width: 800px;
 		width: 100%;
 
-		margin-top: 30px;
+		margin-top: 100px;
 		padding: 0 20px;
 	}
 </style>

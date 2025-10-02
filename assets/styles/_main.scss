@@ -36,6 +36,8 @@ h6 {
 
 h1.title {
 	font-size: 8rem;
+
+	width: fit-content;
 }
 
 h2.title {
@@ -72,6 +74,18 @@ p.error {
 
 a.accent {
 	color: c.$accent;
+}
+
+span.accent {
+	color: c.$accent;
+}
+
+.accent {
+	color: c.$accent;
+}
+
+.color-details {
+	color: c.$details;
 }
 
 label {
