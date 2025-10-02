@@ -58,11 +58,12 @@
 		}
 
 		&--primary {
-			background-color: $primary;
-			border: none;
+			background: $primary-gradient;
+			border: 1px solid $primary;
 
 			&:hover {
-				background-color: color.scale($primary, $lightness: 4%);
+				background: $primary-gradient-hover;
+				transition: background 0.1s ease-in-out;
 			}
 		}
 
