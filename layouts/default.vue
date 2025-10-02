@@ -13,9 +13,7 @@
 		<slot />
 	</main>
 
-	<footer>
-		<p>&copy; 2025</p>
-	</footer>
+	<DFooter />
 </template>
 
 <style lang="scss" scoped>
