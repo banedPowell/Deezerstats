@@ -1,0 +1,15 @@
+[phases.setup]
+nixPkgs = ["nodejs_18", "pnpm-9_x", "curl", "wget"]
+
+[phases.install]
+cmds = [
+  "npm install -g corepack@0.24.1 && corepack enable",
+  "rm -rf node_modules pnpm-lock.yaml",
+  "pnpm install"
+]
+
+[phases.build]
+cmds = ["pnpm run build"]
+
+[start]
+cmd = "node .output/server/index.mjs"
