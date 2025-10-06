@@ -1,39 +1,32 @@
-# Nuxt Minimal Starter
+# Deezerstats
 
-Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+Deezerstats is a web application that allows you to analyze your Deezer listening history.
 
-## Setup
+## Presentation and screenshots
 
-Make sure to install dependencies:
+You can find a detailed presentation [here](https://baned.me/projects/deezerstats).
 
-```bash
-# pnpm
-pnpm install
-```
+## Features
 
-## Development Server
+- Analyze your Deezer listening history
+- See your top tracks, artists and albums
+- See your total listening time,
+- See your total streams
+- See your total distincts artists, albums and tracks
 
-Start the development server on `http://localhost:3000`:
+## Live demo
 
-```bash
-# pnpm
-pnpm dev
-```
+You can find the live demo [here](https://deezerstats.baned.me/).
+with the following credentials:
 
-## Production
+- mail: `baned@example.com`
+- password: `2e2#5W1eMJNik&Fr!3Lz2PPmO7y$K8*a`
 
-Build the application for production:
+## Stack
 
-```bash
-# pnpm
-pnpm build
-```
-
-Locally preview production build:
-
-```bash
-# pnpm
-pnpm preview
-```
-
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+- Nuxt 3
+- Nitro
+- Supabase
+- Tailwind CSS
+- TypeScript
+- Deezer API
