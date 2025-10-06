@@ -82,7 +82,9 @@
 			</ul>
 
 			<div class="flex h-fit w-full flex-col gap-10">
-				<p class="screenshots__title z-10">Vos artistes préférés</p>
+				<p class="screenshots__title albums-and-artists-title z-10">
+					Vos artistes et albums préférés
+				</p>
 
 				<AlbumsAndArtistsScreenshots />
 			</div>
@@ -128,5 +130,9 @@
 
 	.screenshots__title {
 		margin-bottom: 15px;
+	}
+
+	.albums-and-artists-title {
+		margin-top: 15px;
 	}
 </style>
