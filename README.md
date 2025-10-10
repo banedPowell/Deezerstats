@@ -1,5 +1,7 @@
 # Deezerstats
 
+![Deezerstats](https://deezerstats.baned.me/seo.png)
+
 Deezerstats is a web application that allows you to analyze your Deezer listening history.
 
 ## Presentation and screenshots

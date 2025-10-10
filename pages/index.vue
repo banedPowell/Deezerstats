@@ -10,7 +10,7 @@
 			>
 				<Icon icon="lucide:music" class="size-6" />
 
-				<p>Analysez vos musiques Deezer</p>
+				<p>Analysez votre compte Deezer</p>
 			</div>
 
 			<div class="flex max-w-3xl flex-col items-center gap-4">
@@ -133,6 +133,6 @@
 	}
 
 	.albums-and-artists-title {
-		margin-top: 15px;
+		margin-top: 70px;
 	}
 </style>
