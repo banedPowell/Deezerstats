@@ -4,7 +4,7 @@
 	});
 
 	useHead({
-		title: 'Deezerstats - Inscription',
+		title: 'banedStats - Inscription',
 	});
 
 	const router = useRouter();

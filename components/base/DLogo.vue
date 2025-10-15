@@ -2,9 +2,9 @@
 
 <template>
 	<div class="logo__container">
-		<NuxtImg class="logo__img" src="/deezerstats-logo.png" />
+		<NuxtImg class="logo__img" src="/logo.png" />
 
-		<h1 class="logo__text">DEEZERSTATS</h1>
+		<h1 class="logo__text">banedStats</h1>
 	</div>
 </template>
 

@@ -4,7 +4,7 @@
 	});
 
 	useHead({
-		title: 'Deezerstats - Connexion',
+		title: 'banedStats - Connexion',
 	});
 
 	const router = useRouter();

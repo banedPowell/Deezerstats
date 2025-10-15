@@ -1,12 +1,12 @@
-# Deezerstats
+# banedStats
 
-![Deezerstats](https://deezerstats.baned.me/seo.png)
+![banedStats](https://banedStats.baned.me/seo.png)
 
-Deezerstats is a web application that allows you to analyze your Deezer listening history.
+banedStats is a web application that allows you to analyze your Deezer listening history.
 
 ## Presentation and screenshots
 
-You can find a detailed presentation [here](https://baned.me/projects/deezerstats).
+You can find a detailed presentation [here](https://baned.me/projects/banedStats).
 
 ## Features
 
@@ -18,7 +18,7 @@ You can find a detailed presentation [here](https://baned.me/projects/deezerstat
 
 ## Live demo
 
-You can find the live demo [here](https://deezerstats.baned.me/).
+You can find the live demo [here](https://banedStats.baned.me/).
 with the following credentials:
 
 - mail: `baned@example.com`

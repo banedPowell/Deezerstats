@@ -1,27 +1,27 @@
 <script lang="ts" setup>
 	useHead({
-		title: 'Deezerstats',
+		title: 'banedStats',
 		link: [
 			{
 				rel: 'icon',
 				type: 'image/png',
-				href: '/deezerstats-logo.png',
+				href: '/logo.png',
 			},
 		],
 	});
 
 	useSeoMeta({
-		title: 'Deezerstats',
+		title: 'banedStats',
 		description:
 			"Découvrez vos habitudes musicales ! Analysez votre historique d'écoute Deezer et obtenez des statistiques détaillées sur toute la durée de votre compte.",
-		ogTitle: 'Deezerstats',
+		ogTitle: 'banedStats',
 		ogDescription:
 			"Découvrez vos habitudes musicales ! Analysez votre historique d'écoute Deezer et obtenez des statistiques détaillées sur toute la durée de votre compte.",
 		ogImage: '/seo.png',
-		ogUrl: 'https://deezerstats.baned.me/',
+		ogUrl: 'https://banedStats.baned.me/',
 		ogType: 'website',
 		ogLocale: 'fr_FR',
-		ogSiteName: 'Deezerstats',
+		ogSiteName: 'banedStats',
 	});
 </script>
 

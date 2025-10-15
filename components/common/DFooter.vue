@@ -63,7 +63,7 @@
 
 			<li class="footer__column__item">
 				<NuxtLink
-					to="https://github.com/banedPowell/deezerstats"
+					to="https://github.com/banedPowell/banedStats"
 					target="_blank"
 				>
 					<Icon icon="mdi:github" width="14px" />

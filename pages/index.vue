@@ -17,8 +17,8 @@
 				<h1
 					class="title flex w-fit scale-65 flex-row items-center gap-2 md:scale-75 lg:scale-100"
 				>
-					<NuxtImg src="/deezerstats-logo-xl.png" class="size-30" />
-					DEEZERSTATS
+					<NuxtImg src="/logo-xl.png" class="size-30" />
+					banedStats
 				</h1>
 
 				<p class="text-center text-lg text-gray-400">
@@ -55,9 +55,9 @@
 
 				<p class="text-center text-lg text-gray-400">
 					Explorez vos habitudes d'écoute sur votre parcours musical.
-					Deezerstats vous offre une analyse approfondie de vos
-					données musicales avec des outils avancés et des
-					visualisations intuitives.
+					banedStats vous offre une analyse approfondie de vos données
+					musicales avec des outils avancés et des visualisations
+					intuitives.
 				</p>
 
 				<p class="text-center text-lg text-gray-400">
