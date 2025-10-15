@@ -18,7 +18,7 @@
 		ogDescription:
 			"Découvrez vos habitudes musicales ! Analysez votre historique d'écoute Deezer et obtenez des statistiques détaillées sur toute la durée de votre compte.",
 		ogImage: '/seo.png',
-		ogUrl: 'https://banedStats.baned.me/',
+		ogUrl: 'https://stats.baned.me/',
 		ogType: 'website',
 		ogLocale: 'fr_FR',
 		ogSiteName: 'banedStats',
